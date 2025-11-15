@@ -4,6 +4,8 @@ import { TwitterLayout } from "./components/TwitterLayout";
 import { TwitterFeed } from "./components/TwitterFeed";
 import { PostDetails } from "./components/PostDetails";
 import { UserProfile } from "./components/UserProfile";
+import { ExplorePage } from "./components/ExplorePage";
+import { NotificationsPage } from "./components/NotificationsPage";
 import { ConnectModal } from "./ConnectModal";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "sonner";
@@ -78,16 +80,8 @@ function App() {
             <TwitterFeed onPostClick={handlePostClick} />
           ))}
         {activeTab === "profile" && <UserProfile />}
-        {activeTab === "explore" && (
-          <div className="p-8 text-center text-gray-500">
-            Explore page coming soon...
-          </div>
-        )}
-        {activeTab === "notifications" && (
-          <div className="p-8 text-center text-gray-500">
-            Notifications coming soon...
-          </div>
-        )}
+        {activeTab === "explore" && <ExplorePage />}
+        {activeTab === "notifications" && <NotificationsPage />}
         {activeTab === "messages" && (
           <div className="p-8 text-center text-gray-500">
             Messages coming soon...
