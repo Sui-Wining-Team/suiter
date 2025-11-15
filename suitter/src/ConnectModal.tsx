@@ -16,7 +16,9 @@ export function ConnectModal({
   darkMode = false,
 }: ConnectModalProps) {
   const [zkLoginLoading, setZkLoginLoading] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState<'zklogin' | 'wallet' | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<
+    "zklogin" | "wallet" | null
+  >(null);
 
   if (!isOpen) return null;
 
@@ -57,20 +59,22 @@ export function ConnectModal({
         {/* Content - Two Column Layout */}
         <div className="grid grid-cols-5 min-h-[400px]">
           {/* Left Column - Buttons (2/5 width) */}
-          <div className={`col-span-2 p-6 space-y-3 border-r ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div
+            className={`col-span-2 p-6 space-y-3 border-r ${darkMode ? "border-gray-700" : "border-gray-200"}`}
+          >
             {/* zkLogin with Google */}
             <button
               onClick={handleZkLogin}
-              onMouseEnter={() => setSelectedMethod('zklogin')}
+              onMouseEnter={() => setSelectedMethod("zklogin")}
               disabled={zkLoginLoading}
               className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
-                selectedMethod === 'zklogin'
+                selectedMethod === "zklogin"
                   ? darkMode
                     ? "border-purple-500 bg-gray-700"
                     : "border-purple-500 bg-purple-50"
                   : darkMode
-                  ? "border-gray-700 hover:border-purple-400"
-                  : "border-gray-200 hover:border-purple-400"
+                    ? "border-gray-700 hover:border-purple-400"
+                    : "border-gray-200 hover:border-purple-400"
               } ${zkLoginLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
             >
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
@@ -78,7 +82,9 @@ export function ConnectModal({
               </div>
               <div className="flex-1 text-left">
                 <div className="font-semibold text-sm">zkLogin</div>
-                <div className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <div
+                  className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
                   Google OAuth
                 </div>
               </div>
@@ -89,16 +95,16 @@ export function ConnectModal({
 
             {/* Native Wallet Connection */}
             <button
-              onMouseEnter={() => setSelectedMethod('wallet')}
+              onMouseEnter={() => setSelectedMethod("wallet")}
               onClick={(e) => e.preventDefault()}
               className={`w-full p-4 rounded-xl border-2 transition-all ${
-                selectedMethod === 'wallet'
+                selectedMethod === "wallet"
                   ? darkMode
                     ? "border-blue-500 bg-gray-700"
                     : "border-blue-500 bg-blue-50"
                   : darkMode
-                  ? "border-gray-700 hover:border-blue-400"
-                  : "border-gray-200 hover:border-blue-400"
+                    ? "border-gray-700 hover:border-blue-400"
+                    : "border-gray-200 hover:border-blue-400"
               }`}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -107,7 +113,9 @@ export function ConnectModal({
                 </div>
                 <div className="flex-1 text-left">
                   <div className="font-semibold text-sm">Native Wallet</div>
-                  <div className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  <div
+                    className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                  >
                     Browser Extension
                   </div>
                 </div>
@@ -119,8 +127,10 @@ export function ConnectModal({
           </div>
 
           {/* Right Column - Description (3/5 width) */}
-          <div className={`col-span-3 p-8 ${darkMode ? 'bg-gray-900/50' : 'bg-gray-50'}`}>
-            {selectedMethod === 'zklogin' ? (
+          <div
+            className={`col-span-3 p-8 ${darkMode ? "bg-gray-900/50" : "bg-gray-50"}`}
+          >
+            {selectedMethod === "zklogin" ? (
               <div className="space-y-6">
                 <div>
                   <div className="flex items-center gap-3 mb-4">
@@ -129,7 +139,9 @@ export function ConnectModal({
                     </div>
                     <div>
                       <h3 className="text-xl font-bold">zkLogin with Google</h3>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <p
+                        className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                      >
                         Privacy-preserving authentication
                       </p>
                     </div>
@@ -142,9 +154,14 @@ export function ConnectModal({
                       <Shield className="w-4 h-4 text-purple-500" />
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">Zero-Knowledge Privacy</h4>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        Your Google account is never exposed on-chain. Only cryptographic proofs are used.
+                      <h4 className="font-semibold mb-1">
+                        Zero-Knowledge Privacy
+                      </h4>
+                      <p
+                        className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                      >
+                        Your Google account is never exposed on-chain. Only
+                        cryptographic proofs are used.
                       </p>
                     </div>
                   </div>
@@ -155,20 +172,29 @@ export function ConnectModal({
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Easy Onboarding</h4>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        No need to install extensions or manage seed phrases. Sign in with your existing Google account.
+                      <p
+                        className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                      >
+                        No need to install extensions or manage seed phrases.
+                        Sign in with your existing Google account.
                       </p>
                     </div>
                   </div>
 
-                  <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                    <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      <strong>How it works:</strong> Click the button to sign in with Google. A unique Sui wallet address will be derived from your Google account using zero-knowledge proofs.
+                  <div
+                    className={`mt-6 p-4 rounded-lg ${darkMode ? "bg-gray-800" : "bg-white"} border ${darkMode ? "border-gray-700" : "border-gray-200"}`}
+                  >
+                    <p
+                      className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      <strong>How it works:</strong> Click the button to sign in
+                      with Google. A unique Sui wallet address will be derived
+                      from your Google account using zero-knowledge proofs.
                     </p>
                   </div>
                 </div>
               </div>
-            ) : selectedMethod === 'wallet' ? (
+            ) : selectedMethod === "wallet" ? (
               <div className="space-y-6">
                 <div>
                   <div className="flex items-center gap-3 mb-4">
@@ -177,7 +203,9 @@ export function ConnectModal({
                     </div>
                     <div>
                       <h3 className="text-xl font-bold">Native Wallet</h3>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <p
+                        className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                      >
                         Connect with Sui Wallet or other supported wallets
                       </p>
                     </div>
@@ -191,8 +219,11 @@ export function ConnectModal({
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Full Control</h4>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        You maintain complete control over your private keys and assets with your browser extension wallet.
+                      <p
+                        className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                      >
+                        You maintain complete control over your private keys and
+                        assets with your browser extension wallet.
                       </p>
                     </div>
                   </div>
@@ -203,15 +234,24 @@ export function ConnectModal({
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Web3 Standard</h4>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        Traditional Web3 authentication using browser extension wallets like Sui Wallet, Suiet, or Ethos.
+                      <p
+                        className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                      >
+                        Traditional Web3 authentication using browser extension
+                        wallets like Sui Wallet, Suiet, or Ethos.
                       </p>
                     </div>
                   </div>
 
-                  <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} border ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                    <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      <strong>How it works:</strong> Click "Connect Wallet" to connect your Sui-compatible browser extension wallet. You'll be prompted to approve the connection.
+                  <div
+                    className={`mt-6 p-4 rounded-lg ${darkMode ? "bg-gray-800" : "bg-white"} border ${darkMode ? "border-gray-700" : "border-gray-200"}`}
+                  >
+                    <p
+                      className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      <strong>How it works:</strong> Click "Connect Wallet" to
+                      connect your Sui-compatible browser extension wallet.
+                      You'll be prompted to approve the connection.
                     </p>
                   </div>
                 </div>
@@ -219,10 +259,14 @@ export function ConnectModal({
             ) : (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center space-y-4">
-                  <div className={`text-6xl mb-4 ${darkMode ? 'opacity-20' : 'opacity-10'}`}>
+                  <div
+                    className={`text-6xl mb-4 ${darkMode ? "opacity-20" : "opacity-10"}`}
+                  >
                     <Wallet className="w-20 h-20 mx-auto" />
                   </div>
-                  <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p
+                    className={`text-lg ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+                  >
                     Hover over a connection method to learn more
                   </p>
                 </div>
@@ -232,8 +276,12 @@ export function ConnectModal({
         </div>
 
         {/* Footer */}
-        <div className={`p-4 border-t ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
-          <p className={`text-xs text-center ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+        <div
+          className={`p-4 border-t ${darkMode ? "border-gray-700" : "border-gray-200"}`}
+        >
+          <p
+            className={`text-xs text-center ${darkMode ? "text-gray-500" : "text-gray-400"}`}
+          >
             By connecting, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>
