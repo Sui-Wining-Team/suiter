@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LogIn, Loader2 } from 'lucide-react';
 
-const API_URL = 'http://localhost:3001';
+const API_URL = 'https://suitter-auth-backend.onrender.com';
 
 interface ZkLoginButtonProps {
   darkMode?: boolean;
