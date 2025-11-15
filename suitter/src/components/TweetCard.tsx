@@ -28,6 +28,7 @@ interface TweetCardProps {
   commentCount?: number;
   isOwner?: boolean;
   deleted?: boolean;
+  onClick?: () => void;
   onLike?: () => void;
   onDelete?: () => void;
   onComment?: () => void;
@@ -44,6 +45,7 @@ export function TweetCard({
   commentCount = 0,
   isOwner = false,
   deleted = false,
+  onClick,
   onLike,
   onDelete,
   onComment,
@@ -68,7 +70,10 @@ export function TweetCard({
   }
 
   return (
-    <article className="border-b border-gray-800 p-4 hover:bg-gray-900/30 transition-colors cursor-pointer">
+    <article
+      className="border-b border-gray-800 p-4 hover:bg-gray-900/30 transition-colors cursor-pointer"
+      onClick={onClick}
+    >
       <div className="flex gap-3">
         {/* Avatar */}
         <Avatar className="h-12 w-12 flex-shrink-0">

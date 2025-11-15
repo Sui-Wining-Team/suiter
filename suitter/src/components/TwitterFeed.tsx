@@ -9,10 +9,14 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+interface TwitterFeedProps {
+  onPostClick?: (postId: string) => void;
+}
+
 /**
  * Twitter-style feed component for Suitter
  */
-export function TwitterFeed() {
+export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
   const currentAccount = useCurrentAccount();
   const { createPost, deletePost } = usePost();
   const { addComment } = useComment();
@@ -202,55 +206,62 @@ export function TwitterFeed() {
         </div>
       )}
 
-      {/* Posts Feed */}
-      {suits?.map((suit: any) => {
-        if (!suit) {
-          console.log("⚠️ Null suit found");
-          return null;
-        }
+      {/* Posts Feed - Only show top-level posts (no parent_suit_id) */}
+      {suits
+        ?.filter((suit: any) => {
+          // Filter out comments - only show posts without parent_suit_id
+          return !suit.parent_suit_id;
+        })
+        .map((suit: any) => {
+          if (!suit) {
+            console.log("⚠️ Null suit found");
+            return null;
+          }
 
-        console.log("🎯 Processing suit:", suit);
-        const postId = suit.id?.id || suit.id;
+          console.log("🎯 Processing suit:", suit);
+          const postId = suit.id?.id || suit.id;
 
-        if (!postId) {
-          console.log("⚠️ No post ID found");
-          return null;
-        }
+          if (!postId) {
+            console.log("⚠️ No post ID found");
+            return null;
+          }
 
-        console.log("🆔 Post ID:", postId);
+          console.log("🆔 Post ID:", postId);
 
-        // The simple contract stores text directly
-        const text = suit.text || "No content";
-        const mediaBlobIds = suit.media_blob_ids || [];
-        const timestamp = suit.timestamp
-          ? parseInt(suit.timestamp)
-          : Date.now();
+          // The simple contract stores text directly
+          const text = suit.text || "No content";
+          const mediaBlobIds = suit.media_blob_ids || [];
+          const timestamp = suit.timestamp
+            ? parseInt(suit.timestamp)
+            : Date.now();
 
-        const isOwner = suit.owner === currentAccount?.address;
-        const likeStatus = likeStatuses[postId] || {};
-        const timeAgo = getTimeAgo(timestamp);
+          const isOwner = suit.owner === currentAccount?.address;
+          const likeStatus = likeStatuses[postId] || {};
+          const timeAgo = getTimeAgo(timestamp);
+          const commentCount = parseInt(suit.comment_count) || 0;
 
-        return (
-          <TweetCard
-            key={postId}
-            author={suit.owner.slice(0, 6) + "..." + suit.owner.slice(-4)}
-            authorAddress={suit.owner}
-            content={text}
-            mediaBlobIds={mediaBlobIds}
-            timestamp={timeAgo}
-            likes={likeStatus.totalLikes || 0}
-            isLiked={likeStatus.isLiked || false}
-            commentCount={0}
-            isOwner={isOwner}
-            deleted={false}
-            onLike={() => handleToggleLike(postId)}
-            onDelete={() => handleDeletePost(postId)}
-            onComment={() =>
-              handleOpenCommentModal({ ...suit, id: postId, text })
-            }
-          />
-        );
-      })}
+          return (
+            <TweetCard
+              key={postId}
+              author={suit.owner.slice(0, 6) + "..." + suit.owner.slice(-4)}
+              authorAddress={suit.owner}
+              content={text}
+              mediaBlobIds={mediaBlobIds}
+              timestamp={timeAgo}
+              likes={likeStatus.totalLikes || 0}
+              isLiked={likeStatus.isLiked || false}
+              commentCount={commentCount}
+              isOwner={isOwner}
+              deleted={false}
+              onClick={() => onPostClick?.(postId)}
+              onLike={() => handleToggleLike(postId)}
+              onDelete={() => handleDeletePost(postId)}
+              onComment={() =>
+                handleOpenCommentModal({ ...suit, id: postId, text })
+              }
+            />
+          );
+        })}
 
       {/* Comment Modal */}
       {selectedPost && (

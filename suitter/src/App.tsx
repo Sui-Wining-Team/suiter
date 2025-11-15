@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { TwitterLayout } from "./components/TwitterLayout";
 import { TwitterFeed } from "./components/TwitterFeed";
+import { PostDetails } from "./components/PostDetails";
 import { UserProfile } from "./components/UserProfile";
 import { ConnectModal } from "./ConnectModal";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Toaster } from "sonner";
 function App() {
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const currentAccount = useCurrentAccount();
   const [zkLoginAddress, setZkLoginAddress] = useState<string | null>(null);
 
@@ -31,6 +33,14 @@ function App() {
   }, []);
 
   const isConnected = currentAccount || zkLoginAddress;
+
+  const handlePostClick = (postId: string) => {
+    setSelectedPostId(postId);
+  };
+
+  const handleBackToFeed = () => {
+    setSelectedPostId(null);
+  };
 
   // Allow viewing without wallet connection
   return (
@@ -58,7 +68,12 @@ function App() {
 
       <TwitterLayout activeTab={activeTab} onTabChange={setActiveTab}>
         <Toaster position="bottom-center" theme="dark" />
-        {activeTab === "home" && <TwitterFeed />}
+        {activeTab === "home" &&
+          (selectedPostId ? (
+            <PostDetails postId={selectedPostId} onBack={handleBackToFeed} />
+          ) : (
+            <TwitterFeed onPostClick={handlePostClick} />
+          ))}
         {activeTab === "profile" && <UserProfile />}
         {activeTab === "explore" && (
           <div className="p-8 text-center text-gray-500">
