@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, User, Plus, Heart, X, Calendar, Zap, Users, Shield, ArrowRight, MessageCircle, Moon, Sun, Camera, Wallet } from 'lucide-react';
-import { ConnectButton, useCurrentAccount } from '@mysten/dapp-kit';
+import { useCurrentAccount } from '@mysten/dapp-kit';
+import { ConnectModal } from './ConnectModal';
 
 interface UserType {
   id: number;
@@ -96,6 +97,34 @@ const INITIAL_POSTS: Post[] = [
 
 const LandingPage: React.FC<{ onGetStarted: () => void, darkMode: boolean }> = ({ onGetStarted, darkMode }) => {
   const currentAccount = useCurrentAccount();
+  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const [zkLoginAddress, setZkLoginAddress] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check for zkLogin address
+    const params = new URLSearchParams(window.location.search);
+    const callbackToken = params.get('zklogin_token');
+    const callbackAddress = params.get('zklogin_address');
+    
+    if (callbackToken && callbackAddress) {
+      localStorage.setItem('zklogin_token', callbackToken);
+      localStorage.setItem('zklogin_address', callbackAddress);
+      setZkLoginAddress(callbackAddress);
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      const storedAddress = localStorage.getItem('zklogin_address');
+      if (storedAddress) setZkLoginAddress(storedAddress);
+    }
+  }, []);
+
+  const isConnected = currentAccount || zkLoginAddress;
+
+  const handleDisconnect = () => {
+    localStorage.removeItem('zklogin_token');
+    localStorage.removeItem('zklogin_address');
+    setZkLoginAddress(null);
+  };
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'}`}>
@@ -108,10 +137,31 @@ const LandingPage: React.FC<{ onGetStarted: () => void, darkMode: boolean }> = (
             <span className={`text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent`}>Suitter</span>
           </div>
           <div className="flex items-center gap-4">
-            <ConnectButton />
-            {currentAccount && (
-              <button onClick={onGetStarted} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transition-all">
-                Get Started
+            {isConnected ? (
+              <>
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {currentAccount ? currentAccount.address.slice(0, 6) : zkLoginAddress?.slice(0, 6)}...{currentAccount ? currentAccount.address.slice(-4) : zkLoginAddress?.slice(-4)}
+                  </span>
+                  <button
+                    onClick={handleDisconnect}
+                    className={`text-xs px-2 py-1 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                  >
+                    Disconnect
+                  </button>
+                </div>
+                <button onClick={onGetStarted} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transition-all">
+                  Get Started
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsConnectModalOpen(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transition-all flex items-center gap-2"
+              >
+                <Wallet className="w-4 h-4" />
+                Connect Wallet
               </button>
             )}
           </div>
@@ -132,15 +182,18 @@ const LandingPage: React.FC<{ onGetStarted: () => void, darkMode: boolean }> = (
                 Share your thoughts, connect with developers, and be part of the decentralized social revolution.
               </p>
               <div className="flex gap-4">
-                {currentAccount ? (
+                {isConnected ? (
                   <button onClick={onGetStarted} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transition-all flex items-center gap-2">
                     Start Suitting <ArrowRight className="w-5 h-5" />
                   </button>
                 ) : (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-2">
-                    <Wallet className="w-5 h-5 text-yellow-600" />
-                    <span className="text-yellow-800 font-medium">Connect your wallet to get started</span>
-                  </div>
+                  <button
+                    onClick={() => setIsConnectModalOpen(true)}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transition-all flex items-center gap-2"
+                  >
+                    <Wallet className="w-5 h-5" />
+                    Connect Wallet
+                  </button>
                 )}
               </div>
               <div className="flex gap-8 pt-4">
@@ -219,17 +272,27 @@ const LandingPage: React.FC<{ onGetStarted: () => void, darkMode: boolean }> = (
         <div className="max-w-4xl mx-auto text-center text-white">
           <h2 className="text-5xl font-bold mb-6">Ready to Join?</h2>
           <p className="text-xl mb-8">Be part of the future of social networking.</p>
-          {currentAccount ? (
+          {isConnected ? (
             <button onClick={onGetStarted} className="bg-white text-blue-600 px-10 py-4 rounded-full font-bold text-lg hover:shadow-2xl transition-all">
               Get Started for Free
             </button>
           ) : (
-            <div className="inline-block">
-              <ConnectButton />
-            </div>
+            <button
+              onClick={() => setIsConnectModalOpen(true)}
+              className="bg-white text-blue-600 px-10 py-4 rounded-full font-bold text-lg hover:shadow-2xl transition-all flex items-center gap-2"
+            >
+              <Wallet className="w-5 h-5" />
+              Connect Wallet
+            </button>
           )}
         </div>
       </section>
+
+      <ConnectModal 
+        isOpen={isConnectModalOpen} 
+        onClose={() => setIsConnectModalOpen(false)}
+        darkMode={darkMode}
+      />
     </div>
   );
 };
