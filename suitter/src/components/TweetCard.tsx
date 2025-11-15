@@ -82,7 +82,7 @@ export function TweetCard({
   }
 
   return (
-    <article 
+    <article
       className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors cursor-pointer"
       onClick={onClick}
     >
@@ -309,7 +309,7 @@ export function TweetCard({
                 onClick={(e) => {
                   e.stopPropagation();
                   navigator.clipboard.writeText(window.location.href);
-                  toast.success('Link copied to clipboard!');
+                  toast.success("Link copied to clipboard!");
                 }}
                 className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9"
               >

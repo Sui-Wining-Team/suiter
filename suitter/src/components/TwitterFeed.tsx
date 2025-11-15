@@ -52,19 +52,19 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 500);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await refetch();
     setIsRefreshing(false);
-    toast.success('Feed refreshed');
+    toast.success("Feed refreshed");
   };
   const [commentModalOpen, setCommentModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<any>(null);
@@ -200,7 +200,9 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
             disabled={isRefreshing}
             className="rounded-full hover:bg-gray-800"
           >
-            <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
+            />
           </Button>
         </div>
         <div className="flex border-b border-gray-800">
@@ -251,7 +253,9 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
           </div>
           <h3 className="text-xl font-bold mb-2">No posts yet</h3>
           <p className="text-gray-500 text-center max-w-sm">
-            {currentAccount ? "Be the first to share your thoughts with the world!" : "Connect your wallet to see and create posts"}
+            {currentAccount
+              ? "Be the first to share your thoughts with the world!"
+              : "Connect your wallet to see and create posts"}
           </p>
         </div>
       )}

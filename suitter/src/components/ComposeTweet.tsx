@@ -58,7 +58,7 @@ export function ComposeTweet({
       : charCount > maxChars * 0.9
         ? "text-yellow-500"
         : "text-blue-500";
-  
+
   const strokeColor =
     charCount > maxChars
       ? "stroke-red-500"
@@ -137,13 +137,15 @@ export function ComposeTweet({
                         strokeDasharray={`${2 * Math.PI * 12}`}
                         strokeDashoffset={`${2 * Math.PI * 12 * (1 - progress / 100)}`}
                         className={strokeColor}
-                        style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+                        style={{ transition: "stroke-dashoffset 0.3s ease" }}
                       />
                     </svg>
                   </div>
                   {charCount > maxChars * 0.8 && (
                     <span className={`text-sm font-medium ${progressColor}`}>
-                      {charCount > maxChars ? `-${charCount - maxChars}` : maxChars - charCount}
+                      {charCount > maxChars
+                        ? `-${charCount - maxChars}`
+                        : maxChars - charCount}
                     </span>
                   )}
                 </div>

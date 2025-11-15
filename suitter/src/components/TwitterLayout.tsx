@@ -1,5 +1,14 @@
 import { ReactNode } from "react";
-import { Home, Search, Bell, Mail, User, MoreHorizontal, LogOut, Settings } from "lucide-react";
+import {
+  Home,
+  Search,
+  Bell,
+  Mail,
+  User,
+  MoreHorizontal,
+  LogOut,
+  Settings,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
@@ -29,15 +38,15 @@ export function TwitterLayout({
 
   const handleLogout = () => {
     // Clear zkLogin data
-    localStorage.removeItem('zklogin_token');
-    localStorage.removeItem('zklogin_address');
-    
+    localStorage.removeItem("zklogin_token");
+    localStorage.removeItem("zklogin_address");
+
     // Disconnect wallet if connected
     if (currentAccount) {
       disconnect();
     }
-    
-    toast.success('Logged out successfully');
+
+    toast.success("Logged out successfully");
     window.location.reload();
   };
 
@@ -113,17 +122,18 @@ export function TwitterLayout({
                   <MoreHorizontal className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-black border-gray-800" align="end">
+              <DropdownMenuContent
+                className="w-56 bg-black border-gray-800"
+                align="end"
+              >
                 <DropdownMenuItem
-                  onClick={() => onTabChange?.('profile')}
+                  onClick={() => onTabChange?.("profile")}
                   className="cursor-pointer hover:bg-gray-900 focus:bg-gray-900"
                 >
                   <User className="h-4 w-4 mr-2" />
                   View Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-pointer hover:bg-gray-900 focus:bg-gray-900"
-                >
+                <DropdownMenuItem className="cursor-pointer hover:bg-gray-900 focus:bg-gray-900">
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
                 </DropdownMenuItem>

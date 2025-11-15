@@ -70,7 +70,10 @@ export function SuitterFeed() {
     if (!suits || !currentAccount) return;
 
     for (const suit of suits) {
-      const postId = suit.id?.id || suit.id;
+      if (!suit) continue;
+      // Get post ID from the suit object structure
+      const postId = (suit as any).id?.id || (suit as any).id || "";
+      if (!postId) continue;
       const status = await checkLikeStatus(postId);
       setLikeStatuses((prev) => ({ ...prev, [postId]: status }));
     }
@@ -93,10 +96,11 @@ export function SuitterFeed() {
   const handleCreateProfile = async () => {
     if (!username) return;
 
+    const name = username; // Use username as display name
     const bioCid = bio || "placeholder-bio-cid";
     const avatarCid = "placeholder-avatar-cid";
 
-    await createProfile(username, bioCid, avatarCid);
+    await createProfile(username, name, bioCid, avatarCid);
     await loadProfile();
     setUsername("");
     setBio("");
@@ -231,7 +235,7 @@ export function SuitterFeed() {
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">All Suits</h2>
           <button
-            onClick={refetch}
+            onClick={() => refetch()}
             disabled={suitsLoading}
             className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
           >

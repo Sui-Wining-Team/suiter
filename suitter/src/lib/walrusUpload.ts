@@ -1,4 +1,4 @@
-import { walrusClient, WALRUS_CONFIG, getWalrusBlobUrl } from "./walrusConfig";
+import { WALRUS_CONFIG, getWalrusBlobUrl } from "./walrusConfig";
 import { Transaction } from "@mysten/sui/transactions";
 
 export interface UploadResult {

@@ -4,7 +4,7 @@ import type {
   Post,
   Comment,
   Like,
-  PostCreatedEvent,
+  SuitCreatedEvent,
 } from "./suitterContract";
 
 /**
@@ -45,8 +45,10 @@ export class SuitterQueries {
         id: fields.id.id,
         owner: fields.owner,
         username: this.decodeVectorU8(fields.username),
-        bio_cid: this.decodeVectorU8(fields.bio_cid),
-        avatar_cid: this.decodeVectorU8(fields.avatar_cid),
+        name: this.decodeVectorU8(fields.name) || '',
+        bio: this.decodeVectorU8(fields.bio) || '',
+        avatar_blob_id: this.decodeVectorU8(fields.avatar_blob_id) || '',
+        created_at: fields.created_at || '0',
       };
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -311,17 +313,17 @@ export class SuitterQueries {
   /**
    * Get recent posts (using events)
    */
-  static async getRecentPosts(limit = 50): Promise<PostCreatedEvent[]> {
+  static async getRecentPosts(limit = 50): Promise<SuitCreatedEvent[]> {
     try {
       const events = await suiClient.queryEvents({
         query: {
-          MoveEventType: `${SUITTER_CONFIG.PACKAGE_ID}::${SUITTER_CONFIG.MODULE_NAME}::PostCreatedEvent`,
+          MoveEventType: `${SUITTER_CONFIG.PACKAGE_ID}::${SUITTER_CONFIG.MODULE_NAME}::SuitCreatedEvent`,
         },
         limit,
         order: "descending",
       });
 
-      return events.data.map((event) => event.parsedJson as PostCreatedEvent);
+      return events.data.map((event) => event.parsedJson as SuitCreatedEvent);
     } catch (error) {
       console.error("Error fetching recent posts:", error);
       return [];
