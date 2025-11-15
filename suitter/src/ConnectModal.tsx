@@ -8,7 +8,7 @@ interface ConnectModalProps {
   darkMode?: boolean;
 }
 
-const API_URL = "http://localhost:3001";
+const API_URL = "https://suitter-auth-backend.onrender.com";
 
 export function ConnectModal({
   isOpen,

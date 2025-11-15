@@ -1,4 +1,4 @@
-import { WalrusClient } from "@mysten/walrus";
+// import { WalrusClient } from "@mysten/walrus";
 
 // Walrus configuration for testnet
 export const WALRUS_CONFIG = {
@@ -11,10 +11,10 @@ export const WALRUS_CONFIG = {
 };
 
 // Initialize Walrus client
-export const walrusClient = new WalrusClient({
-  aggregatorUrl: WALRUS_CONFIG.AGGREGATOR_URL,
-  publisherUrl: WALRUS_CONFIG.PUBLISHER_URL,
-});
+// export const walrusClient = new WalrusClient({
+//   aggregatorUrl: WALRUS_CONFIG.AGGREGATOR_URL,
+//   publisherUrl: WALRUS_CONFIG.PUBLISHER_URL,
+// });
 
 // Helper to get blob URL from blob ID
 export function getWalrusBlobUrl(blobId: string): string {

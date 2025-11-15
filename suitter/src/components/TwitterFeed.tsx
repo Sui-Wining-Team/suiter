@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { usePost, useLike, useComment } from "@/hooks/useSuitterContract";
 import { useReadSuits } from "@/hooks/useReadSuits";
@@ -6,8 +6,9 @@ import { ComposeTweet } from "./ComposeTweet";
 import { TweetCard } from "./TweetCard";
 import { CommentModal } from "./CommentModal";
 import { Separator } from "@/components/ui/separator";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw, ArrowUp } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface TwitterFeedProps {
   onPostClick?: (postId: string) => void;
@@ -42,6 +43,29 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
   }, [suits]);
 
   const [likeStatuses, setLikeStatuses] = useState<Record<string, any>>({});
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const feedRef = useRef<HTMLDivElement>(null);
+
+  // Show scroll to top button when scrolled down
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 500);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+    toast.success("Feed refreshed");
+  };
   const [commentModalOpen, setCommentModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<any>(null);
 
@@ -110,7 +134,6 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
     }
   };
 
-  // Handle adding a comment
   const handleComment = async (
     postId: string,
     content: string,
@@ -169,11 +192,22 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full" ref={feedRef}>
       {/* Header */}
       <div className="sticky top-0 z-10 backdrop-blur-md bg-black/80 border-b border-gray-800">
-        <div className="px-4 py-3">
+        <div className="px-4 py-3 flex items-center justify-between">
           <h1 className="text-xl font-bold">Home</h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="rounded-full hover:bg-gray-800"
+          >
+            <RefreshCw
+              className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
+            />
+          </Button>
         </div>
         <div className="flex border-b border-gray-800">
           <button className="flex-1 py-4 text-center hover:bg-gray-900 transition-colors border-b-4 border-blue-500 font-semibold">
@@ -192,8 +226,19 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
 
       {/* Loading State */}
       {suitsLoading && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <div className="space-y-4 p-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="border-b border-gray-800 pb-4">
+              <div className="flex gap-3 animate-pulse">
+                <div className="w-12 h-12 bg-gray-800 rounded-full" />
+                <div className="flex-1 space-y-3">
+                  <div className="h-4 bg-gray-800 rounded w-1/4" />
+                  <div className="h-4 bg-gray-800 rounded w-3/4" />
+                  <div className="h-4 bg-gray-800 rounded w-1/2" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -204,9 +249,18 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
 
       {/* Empty State */}
       {!suitsLoading && (!suits || suits.length === 0) && (
-        <div className="p-12 text-center">
-          <p className="text-gray-500 text-lg">No posts yet.</p>
-          <p className="text-gray-600 mt-2">Be the first to post!</p>
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+            <svg viewBox="0 0 24 24" className="h-8 w-8 fill-gray-600">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold mb-2">No posts yet</h3>
+          <p className="text-gray-500 text-center max-w-sm">
+            {currentAccount
+              ? "Be the first to share your thoughts with the world!"
+              : "Connect your wallet to see and create posts"}
+          </p>
         </div>
       )}
 
@@ -238,11 +292,18 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
           const timestamp = suit.timestamp
             ? parseInt(suit.timestamp)
             : Date.now();
-
-          const isOwner = suit.owner === currentAccount?.address;
-          const likeStatus = likeStatuses[postId] || {};
           const timeAgo = getTimeAgo(timestamp);
-          const commentCount = parseInt(suit.comment_count) || 0;
+          const isOwner = suit.owner === currentAccount?.address;
+
+          // Get comment count from suit object
+          const commentCount = suit.comment_count
+            ? parseInt(suit.comment_count)
+            : 0;
+
+          // Get like status from the likeStatuses state
+          const likeStatus = likeStatuses[postId] || {};
+          const likeCount = likeStatus.totalLikes || 0;
+          const isLiked = likeStatus.isLiked || false;
 
           return (
             <TweetCard
@@ -252,8 +313,8 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
               content={text}
               mediaBlobIds={mediaBlobIds}
               timestamp={timeAgo}
-              likes={likeStatus.totalLikes || 0}
-              isLiked={likeStatus.isLiked || false}
+              likes={likeCount}
+              isLiked={isLiked}
               commentCount={commentCount}
               isOwner={isOwner}
               deleted={false}
@@ -283,6 +344,17 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
           postContent={selectedPost.text || ""}
           postTimestamp={getTimeAgo(selectedPost.timestamp || Date.now())}
         />
+      )}
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-20 right-8 w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 z-50"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="h-6 w-6" />
+        </button>
       )}
     </div>
   );

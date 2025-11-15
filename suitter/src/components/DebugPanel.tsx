@@ -47,6 +47,7 @@ export function DebugPanel() {
       toast.loading("Creating profile...", { id: "test-profile" });
       await createProfile(
         username,
+        username, // Use username as name
         "bio-cid-placeholder",
         "avatar-cid-placeholder",
       );

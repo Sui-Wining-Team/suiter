@@ -79,10 +79,11 @@ export function SuitterExample() {
     if (!username) return;
 
     // In production, upload bio and avatar to IPFS/Walrus and use the CID
+    const name = username; // Use username as display name
     const bioCid = bio || "placeholder-bio-cid";
     const avatarCid = "placeholder-avatar-cid";
 
-    await createProfile(username, bioCid, avatarCid);
+    await createProfile(username, name, bioCid, avatarCid);
     await loadProfile();
     setUsername("");
     setBio("");

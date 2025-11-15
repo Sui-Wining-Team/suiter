@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { MediaUploader } from "./MediaUploader";
+import { MediaUpload } from "./MediaUpload";
 import { toast } from "sonner";
 
 interface ComposeTweetProps {
@@ -31,6 +31,12 @@ export function ComposeTweet({
     setCharCount(text.length);
   };
 
+  const handleMediaChange = (files: File[]) => {
+    // TODO: Upload files to Walrus and get blob IDs
+    // For now, just store empty array until Walrus integration
+    setMediaBlobIds([]);
+  };
+
   const handlePost = () => {
     if (!currentAccount) {
       toast.error("Please connect your wallet to post");
@@ -52,6 +58,13 @@ export function ComposeTweet({
       : charCount > maxChars * 0.9
         ? "text-yellow-500"
         : "text-blue-500";
+
+  const strokeColor =
+    charCount > maxChars
+      ? "stroke-red-500"
+      : charCount > maxChars * 0.9
+        ? "stroke-yellow-500"
+        : "stroke-blue-500";
 
   const isPostDisabled =
     !currentAccount || disabled || !content.trim() || charCount > maxChars;
@@ -88,14 +101,12 @@ export function ComposeTweet({
             className="min-h-[120px] text-xl bg-transparent border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500"
           />
 
-          {/* Media Uploader */}
-          <MediaUploader
-            onMediaChange={setMediaBlobIds}
-            maxFiles={4}
-            disabled={!currentAccount || disabled}
-          />
+          {/* Media Upload */}
+          <div className="mt-3">
+            <MediaUpload onMediaChange={handleMediaChange} maxFiles={4} />
+          </div>
 
-          {/* Post Actions */}
+          {/* Actions */}
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-800">
             <div className="text-sm text-gray-500">
               {mediaBlobIds.length > 0 && (
@@ -106,31 +117,35 @@ export function ComposeTweet({
             <div className="flex items-center gap-3">
               {charCount > 0 && (
                 <div className="flex items-center gap-2">
-                  <svg className="w-8 h-8 transform -rotate-90">
-                    <circle
-                      cx="16"
-                      cy="16"
-                      r="14"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      fill="none"
-                      className="text-gray-700"
-                    />
-                    <circle
-                      cx="16"
-                      cy="16"
-                      r="14"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 14}`}
-                      strokeDashoffset={`${2 * Math.PI * 14 * (1 - progress / 100)}`}
-                      className={progressColor}
-                    />
-                  </svg>
-                  {charCount > maxChars * 0.9 && (
-                    <span className={`text-sm ${progressColor}`}>
-                      {maxChars - charCount}
+                  <div className="relative w-8 h-8">
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle
+                        cx="16"
+                        cy="16"
+                        r="12"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="none"
+                        className="text-gray-700"
+                      />
+                      <circle
+                        cx="16"
+                        cy="16"
+                        r="12"
+                        strokeWidth="3"
+                        fill="none"
+                        strokeDasharray={`${2 * Math.PI * 12}`}
+                        strokeDashoffset={`${2 * Math.PI * 12 * (1 - progress / 100)}`}
+                        className={strokeColor}
+                        style={{ transition: "stroke-dashoffset 0.3s ease" }}
+                      />
+                    </svg>
+                  </div>
+                  {charCount > maxChars * 0.8 && (
+                    <span className={`text-sm font-medium ${progressColor}`}>
+                      {charCount > maxChars
+                        ? `-${charCount - maxChars}`
+                        : maxChars - charCount}
                     </span>
                   )}
                 </div>
