@@ -49,9 +49,13 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
   useEffect(() => {
     const loadLikeStatuses = async () => {
       if (suits && suits.length > 0 && currentAccount) {
+        console.log("🔍 Loading like statuses for posts...");
         for (const suit of suits) {
           const postId = (suit as any).id?.id || (suit as any).id;
           const status = await checkLikeStatus(postId);
+          console.log(
+            `💗 Post ${postId}: ${status.totalLikes} likes, isLiked: ${status.isLiked}`,
+          );
           setLikeStatuses((prev) => ({
             ...prev,
             [postId]: status,
@@ -142,7 +146,7 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
     try {
       if (status?.isLiked) {
         toast.loading("Removing like...", { id: "toggle-like" });
-        await unlikePost(status.likeObjectId);
+        await unlikePost(postId);
         toast.success("Like removed!", { id: "toggle-like" });
       } else {
         toast.loading("Liking post...", { id: "toggle-like" });

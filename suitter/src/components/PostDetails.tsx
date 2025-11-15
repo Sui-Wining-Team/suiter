@@ -93,7 +93,7 @@ export function PostDetails({ postId, onBack }: PostDetailsProps) {
     try {
       if (status?.isLiked) {
         toast.loading("Removing like...", { id: "toggle-like" });
-        await unlikePost(status.likeObjectId);
+        await unlikePost(suitId);
         toast.success("Like removed!", { id: "toggle-like" });
       } else {
         toast.loading("Liking post...", { id: "toggle-like" });

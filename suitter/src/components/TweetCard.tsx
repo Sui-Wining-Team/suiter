@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,12 +49,8 @@ export function TweetCard({
   onDelete,
   onComment,
 }: TweetCardProps) {
-  const [localLiked, setLocalLiked] = useState(isLiked);
-  const [localLikes, setLocalLikes] = useState(likes);
-
-  const handleLike = () => {
-    setLocalLiked(!localLiked);
-    setLocalLikes(localLiked ? localLikes - 1 : localLikes + 1);
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onLike?.();
   };
 
@@ -166,20 +161,19 @@ export function TweetCard({
             <Button
               variant="ghost"
               size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleLike();
-              }}
-              className={`flex items-center gap-2 rounded-full px-3 ${
-                localLiked
-                  ? "text-pink-500 hover:text-pink-600 hover:bg-pink-500/10"
-                  : "text-gray-500 hover:text-pink-500 hover:bg-pink-500/10"
+              onClick={handleLike}
+              className={`flex items-center gap-2 rounded-full px-3 transition-colors ${
+                isLiked
+                  ? "text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                  : "text-gray-500 hover:text-red-500 hover:bg-red-500/10"
               }`}
             >
               <Heart
-                className={`h-4 w-4 ${localLiked ? "fill-current" : ""}`}
+                className={`h-4 w-4 transition-all ${
+                  isLiked ? "fill-red-500" : ""
+                }`}
               />
-              {localLikes > 0 && <span className="text-sm">{localLikes}</span>}
+              <span className="text-sm">{likes}</span>
             </Button>
 
             <Button

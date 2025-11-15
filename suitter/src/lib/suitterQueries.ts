@@ -209,29 +209,35 @@ export class SuitterQueries {
   }
 
   /**
-   * Get likes for a post
+   * Get likes for a post (from the Suit's likes VecSet)
    */
   static async getLikesByPost(postId: string): Promise<Like[]> {
     try {
-      const events = await suiClient.queryEvents({
-        query: {
-          MoveEventType: `${SUITTER_CONFIG.PACKAGE_ID}::${SUITTER_CONFIG.MODULE_NAME}::LikeCreatedEvent`,
+      const suit = await suiClient.getObject({
+        id: postId,
+        options: {
+          showContent: true,
         },
       });
 
-      const likeIds = events.data
-        .filter((event) => (event.parsedJson as any).post_id === postId)
-        .map((event) => (event.parsedJson as any).like_id);
-
-      const likes: Like[] = [];
-      for (const likeId of likeIds) {
-        const like = await this.getLike(likeId);
-        if (like && like.post_id === postId) {
-          likes.push(like);
-        }
+      if (
+        !suit.data ||
+        !suit.data.content ||
+        suit.data.content.dataType !== "moveObject"
+      ) {
+        return [];
       }
 
-      return likes;
+      const fields = suit.data.content.fields as any;
+      // The likes field is a VecSet containing addresses
+      const likesVecSet = fields.likes?.fields?.contents || [];
+
+      // Convert to Like objects for compatibility
+      return likesVecSet.map((address: string) => ({
+        id: `${postId}-${address}`,
+        post_id: postId,
+        liker: address,
+      }));
     } catch (error) {
       console.error("Error fetching likes:", error);
       return [];
@@ -271,37 +277,38 @@ export class SuitterQueries {
   }
 
   /**
-   * Check if user has liked a post
+   * Check if user has liked a post (from Suit's likes VecSet)
    */
   static async hasUserLikedPost(
     userAddress: string,
     postId: string,
   ): Promise<{ liked: boolean; likeId?: string }> {
     try {
-      const objects = await suiClient.getOwnedObjects({
-        owner: userAddress,
-        filter: {
-          StructType: `${SUITTER_CONFIG.PACKAGE_ID}::${SUITTER_CONFIG.MODULE_NAME}::Like`,
-        },
+      const suit = await suiClient.getObject({
+        id: postId,
         options: {
           showContent: true,
         },
       });
 
-      const like = objects.data.find((obj) => {
-        if (obj.data?.content?.dataType === "moveObject") {
-          const fields = (obj.data.content as any).fields;
-          return fields.post_id === postId;
-        }
-        return false;
-      });
-
-      if (like && like.data?.content?.dataType === "moveObject") {
-        const fields = (like.data.content as any).fields;
-        return { liked: true, likeId: fields.id.id };
+      if (
+        !suit.data ||
+        !suit.data.content ||
+        suit.data.content.dataType !== "moveObject"
+      ) {
+        return { liked: false };
       }
 
-      return { liked: false };
+      const fields = suit.data.content.fields as any;
+      const likesVecSet = fields.likes?.fields?.contents || [];
+
+      // Check if user's address is in the likes set
+      const isLiked = likesVecSet.includes(userAddress);
+
+      return {
+        liked: isLiked,
+        likeId: isLiked ? `${postId}-${userAddress}` : undefined,
+      };
     } catch (error) {
       console.error("Error checking like status:", error);
       return { liked: false };

@@ -378,7 +378,7 @@ export function useLike() {
     }
   };
 
-  const unlikePost = async (likeId: string) => {
+  const unlikePost = async (suitId: string) => {
     if (!currentAccount) {
       setError("No wallet connected");
       return;
@@ -388,7 +388,7 @@ export function useLike() {
     setError(null);
 
     try {
-      const tx = SuitterTransactions.unlikePost(likeId);
+      const tx = SuitterTransactions.unlikePost(suitId);
 
       await new Promise((resolve, reject) => {
         signAndExecute(
