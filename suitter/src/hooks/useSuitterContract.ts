@@ -22,39 +22,53 @@ export function useProfile() {
     bio: string,
     avatarBlobId: string,
   ) => {
+    console.log("[useProfile] createProfile called with:", {
+      username,
+      name,
+      bio,
+      avatarBlobId,
+    });
+
     if (!currentAccount) {
-      setError("No wallet connected");
-      return;
+      const error = "No wallet connected";
+      console.error("[useProfile]", error);
+      setError(error);
+      throw new Error(error);
     }
 
     setLoading(true);
     setError(null);
 
     try {
+      console.log("[useProfile] Creating transaction...");
       const tx = SuitterTransactions.createProfile(
         username,
         name,
         bio,
         avatarBlobId,
       );
+      console.log("[useProfile] Transaction created, executing...");
 
       await new Promise((resolve, reject) => {
         signAndExecute(
           { transaction: tx },
           {
             onSuccess: (result) => {
-              console.log("Profile created:", result);
+              console.log("[useProfile] Profile created successfully:", result);
               resolve(result);
             },
             onError: (err) => {
-              console.error("Error creating profile:", err);
+              console.error("[useProfile] Error creating profile:", err);
               reject(err);
             },
           },
         );
       });
+      console.log("[useProfile] Profile creation completed");
     } catch (err: any) {
-      setError(err.message || "Failed to create profile");
+      const errorMsg = err.message || "Failed to create profile";
+      console.error("[useProfile] Error:", errorMsg, err);
+      setError(errorMsg);
       throw err;
     } finally {
       setLoading(false);
@@ -404,7 +418,7 @@ export function useLike() {
     setError(null);
 
     try {
-      const tx = SuitterTransactions.unlikePost(suitId);
+      const tx = SuitterTransactions.unlikeSuit(suitId);
 
       await new Promise((resolve, reject) => {
         signAndExecute(

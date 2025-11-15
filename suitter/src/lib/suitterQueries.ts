@@ -21,7 +21,7 @@ export class SuitterQueries {
       const objects = await suiClient.getOwnedObjects({
         owner: ownerAddress,
         filter: {
-          StructType: `${SUITTER_CONFIG.PACKAGE_ID}::${SUITTER_CONFIG.MODULE_NAME}::Profile`,
+          StructType: `${SUITTER_CONFIG.PACKAGE_ID}::sui_profile::UserProfile`,
         },
         options: {
           showContent: true,
@@ -44,11 +44,11 @@ export class SuitterQueries {
       return {
         id: fields.id.id,
         owner: fields.owner,
-        username: this.decodeVectorU8(fields.username),
-        name: this.decodeVectorU8(fields.name) || '',
-        bio: this.decodeVectorU8(fields.bio) || '',
-        avatar_blob_id: this.decodeVectorU8(fields.avatar_blob_id) || '',
-        created_at: fields.created_at || '0',
+        username: fields.username || "",
+        name: fields.name || "",
+        bio: fields.bio || "",
+        avatar_blob_id: fields.avatar_blob_id || "",
+        created_at: fields.created_at || "0",
       };
     } catch (error) {
       console.error("Error fetching profile:", error);
