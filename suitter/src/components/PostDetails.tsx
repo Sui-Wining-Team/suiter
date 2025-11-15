@@ -13,6 +13,12 @@ interface PostDetailsProps {
   onBack: () => void;
 }
 
+interface CommentNode {
+  comment: any;
+  children: CommentNode[];
+  depth: number;
+}
+
 export function PostDetails({ postId, onBack }: PostDetailsProps) {
   const currentAccount = useCurrentAccount();
   const { likePost, unlikePost, checkLikeStatus } = useLike();
@@ -21,17 +27,45 @@ export function PostDetails({ postId, onBack }: PostDetailsProps) {
 
   const [likeStatuses, setLikeStatuses] = useState<Record<string, any>>({});
   const [commentModalOpen, setCommentModalOpen] = useState(false);
+  const [replyToComment, setReplyToComment] = useState<any>(null);
 
-  // Find the main post and its comments
+  // Find the main post
   const mainPost = suits?.find((suit: any) => {
     const suitId = suit.id?.id || suit.id;
     return suitId === postId;
   }) as any;
 
-  const comments = (suits?.filter((suit: any) => {
-    const parentId = suit.parent_suit_id;
-    return parentId === postId;
-  }) || []) as any[];
+  // Build comment tree structure
+  const buildCommentTree = (
+    parentId: string,
+    depth: number = 0,
+  ): CommentNode[] => {
+    const directChildren = (suits || []).filter((suit: any) => {
+      return suit.parent_suit_id === parentId;
+    });
+
+    return directChildren.map((comment: any) => {
+      const commentId = comment.id?.id || comment.id;
+      return {
+        comment,
+        children: buildCommentTree(commentId, depth + 1),
+        depth,
+      };
+    });
+  };
+
+  const commentTree = mainPost
+    ? buildCommentTree(mainPost.id?.id || mainPost.id)
+    : [];
+
+  // Flatten tree for like status loading
+  const flattenComments = (nodes: CommentNode[]): any[] => {
+    return nodes.reduce((acc: any[], node) => {
+      return [...acc, node.comment, ...flattenComments(node.children)];
+    }, []);
+  };
+
+  const allComments = flattenComments(commentTree);
 
   // Load like statuses
   useEffect(() => {
@@ -41,8 +75,8 @@ export function PostDetails({ postId, onBack }: PostDetailsProps) {
         const status = await checkLikeStatus(mainPostId);
         setLikeStatuses((prev) => ({ ...prev, [mainPostId]: status }));
 
-        // Load like statuses for comments
-        for (const comment of comments) {
+        // Load like statuses for all comments
+        for (const comment of allComments) {
           const commentId = comment.id?.id || comment.id;
           const commentStatus = await checkLikeStatus(commentId);
           setLikeStatuses((prev) => ({ ...prev, [commentId]: commentStatus }));
@@ -77,8 +111,12 @@ export function PostDetails({ postId, onBack }: PostDetailsProps) {
 
   const handleComment = async (content: string, mediaBlobIds: string[]) => {
     try {
+      const targetId = replyToComment
+        ? replyToComment.id?.id || replyToComment.id
+        : postId;
+
       toast.loading("Adding comment...", { id: "add-comment" });
-      await addComment(postId, content, mediaBlobIds);
+      await addComment(targetId, content, mediaBlobIds);
       toast.success("Comment added!", { id: "add-comment" });
 
       setTimeout(() => {
@@ -88,6 +126,16 @@ export function PostDetails({ postId, onBack }: PostDetailsProps) {
       console.error("Failed to add comment:", error);
       toast.error("Failed to add comment.", { id: "add-comment" });
     }
+  };
+
+  const handleOpenCommentModal = (comment?: any) => {
+    setReplyToComment(comment || null);
+    setCommentModalOpen(true);
+  };
+
+  const handleCloseCommentModal = () => {
+    setCommentModalOpen(false);
+    setReplyToComment(null);
   };
 
   if (isLoading) {
@@ -160,63 +208,120 @@ export function PostDetails({ postId, onBack }: PostDetailsProps) {
       {/* Comments Section */}
       <div className="border-b-8 border-gray-900 mb-2"></div>
 
-      {comments.length === 0 ? (
+      {commentTree.length === 0 ? (
         <div className="p-12 text-center">
           <p className="text-gray-500 text-lg">No comments yet</p>
           <p className="text-gray-600 mt-2">Be the first to comment!</p>
         </div>
       ) : (
         <div>
-          {comments.map((comment: any) => {
-            const commentId = comment.id?.id || comment.id;
-            const commentText = comment.text || "No content";
-            const commentMedia = comment.media_blob_ids || [];
-            const commentTimestamp = comment.timestamp
-              ? parseInt(comment.timestamp)
-              : Date.now();
-            const commentIsOwner = comment.owner === currentAccount?.address;
-            const commentLikeStatus = likeStatuses[commentId] || {};
-            const commentTimeAgo = getTimeAgo(commentTimestamp);
-
-            return (
-              <div key={commentId} className="border-b border-gray-800">
-                {/* Thread line connector */}
-                <div className="relative">
-                  <div className="absolute left-10 top-0 bottom-0 w-0.5 bg-gray-800"></div>
-                  <TweetCard
-                    author={
-                      comment.owner.slice(0, 6) +
-                      "..." +
-                      comment.owner.slice(-4)
-                    }
-                    authorAddress={comment.owner}
-                    content={commentText}
-                    mediaBlobIds={commentMedia}
-                    timestamp={commentTimeAgo}
-                    likes={commentLikeStatus.totalLikes || 0}
-                    isLiked={commentLikeStatus.isLiked || false}
-                    commentCount={0}
-                    isOwner={commentIsOwner}
-                    onLike={() => handleToggleLike(commentId)}
-                  />
-                </div>
-              </div>
-            );
-          })}
+          {commentTree.map((node) => (
+            <CommentThread
+              key={node.comment.id?.id || node.comment.id}
+              node={node}
+              likeStatuses={likeStatuses}
+              currentAccount={currentAccount}
+              onLike={handleToggleLike}
+              onReply={handleOpenCommentModal}
+            />
+          ))}
         </div>
       )}
 
       {/* Comment Modal */}
       <CommentModal
         isOpen={commentModalOpen}
-        onClose={() => setCommentModalOpen(false)}
+        onClose={handleCloseCommentModal}
         onComment={handleComment}
         postAuthor={
-          mainPost.owner.slice(0, 6) + "..." + mainPost.owner.slice(-4)
+          replyToComment
+            ? replyToComment.owner.slice(0, 6) +
+              "..." +
+              replyToComment.owner.slice(-4)
+            : mainPost.owner.slice(0, 6) + "..." + mainPost.owner.slice(-4)
         }
-        postContent={text}
-        postTimestamp={timeAgo}
+        postContent={replyToComment ? replyToComment.text : text}
+        postTimestamp={
+          replyToComment
+            ? getTimeAgo(parseInt(replyToComment.timestamp) || Date.now())
+            : timeAgo
+        }
       />
+    </div>
+  );
+}
+
+interface CommentThreadProps {
+  node: CommentNode;
+  likeStatuses: Record<string, any>;
+  currentAccount: any;
+  onLike: (commentId: string) => void;
+  onReply: (comment: any) => void;
+}
+
+function CommentThread({
+  node,
+  likeStatuses,
+  currentAccount,
+  onLike,
+  onReply,
+}: CommentThreadProps) {
+  const { comment, children, depth } = node;
+  const commentId = comment.id?.id || comment.id;
+  const commentText = comment.text || "No content";
+  const commentMedia = comment.media_blob_ids || [];
+  const commentTimestamp = comment.timestamp
+    ? parseInt(comment.timestamp)
+    : Date.now();
+  const commentIsOwner = comment.owner === currentAccount?.address;
+  const commentLikeStatus = likeStatuses[commentId] || {};
+  const commentTimeAgo = getTimeAgo(commentTimestamp);
+  const commentCount = parseInt(comment.comment_count) || 0;
+
+  // Calculate indentation (max 4 levels to prevent excessive indentation)
+  const indentLevel = Math.min(depth, 4);
+  const leftPadding = indentLevel * 40; // 40px per level
+
+  return (
+    <div>
+      <div
+        className="border-b border-gray-800 relative"
+        style={{ paddingLeft: `${leftPadding}px` }}
+      >
+        {/* Thread line connector for nested comments */}
+        {depth > 0 && (
+          <div
+            className="absolute top-0 bottom-0 w-0.5 bg-gray-800"
+            style={{ left: `${leftPadding - 30}px` }}
+          />
+        )}
+
+        <TweetCard
+          author={comment.owner.slice(0, 6) + "..." + comment.owner.slice(-4)}
+          authorAddress={comment.owner}
+          content={commentText}
+          mediaBlobIds={commentMedia}
+          timestamp={commentTimeAgo}
+          likes={commentLikeStatus.totalLikes || 0}
+          isLiked={commentLikeStatus.isLiked || false}
+          commentCount={commentCount}
+          isOwner={commentIsOwner}
+          onLike={() => onLike(commentId)}
+          onComment={() => onReply(comment)}
+        />
+      </div>
+
+      {/* Render nested replies */}
+      {children.map((childNode) => (
+        <CommentThread
+          key={childNode.comment.id?.id || childNode.comment.id}
+          node={childNode}
+          likeStatuses={likeStatuses}
+          currentAccount={currentAccount}
+          onLike={onLike}
+          onReply={onReply}
+        />
+      ))}
     </div>
   );
 }
