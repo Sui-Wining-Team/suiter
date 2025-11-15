@@ -3,7 +3,8 @@
 ## 🚀 Quick Start
 
 1. **Open the app**: Navigate to http://localhost:5175/
-2. **Connect wallet**: Click "Connect Wallet" and choose Sui Wallet or Google (zkLogin)
+2. **Connect wallet**: Click "Connect Wallet" and choose Sui Wallet or Google
+   (zkLogin)
 3. **Start posting**: Use the compose box at the top to create your first post!
 
 ## 📱 Main Features
@@ -11,6 +12,7 @@
 ### 1. Creating Posts
 
 **Using the Main UI:**
+
 1. Look for the "What is happening?!" compose box at the top
 2. Type your message (max 280 characters)
 3. Click the blue "Post" button
@@ -18,6 +20,7 @@
 5. Your post appears in the feed after ~2 seconds
 
 **Using the Debug Panel:**
+
 1. Find the debug panel in the bottom-right corner
 2. Edit the test content
 3. Click "Create Test Post"
@@ -25,6 +28,7 @@
 ### 2. Liking Posts
 
 **From the Feed:**
+
 1. Find any post in your feed
 2. Click the heart ♥ icon at the bottom
 3. Heart turns red when liked
@@ -32,6 +36,7 @@
 5. Like count updates in real-time
 
 **Using the Debug Panel:**
+
 1. Copy a post ID from the feed (you'll need to inspect element to get it)
 2. Paste into "Post ID" field in the "Test Like Post" section
 3. Click "Like Post"
@@ -39,6 +44,7 @@
 ### 3. Deleting Your Posts
 
 **From the Feed:**
+
 1. Find one of YOUR posts (must be the author)
 2. Click the three-dot menu (⋯) on the right side
 3. Click "Delete"
@@ -48,17 +54,20 @@
 ### 4. Viewing Posts
 
 **Automatic:**
+
 - Posts load automatically when you open the app
 - Uses blockchain events to find all posts
 - Shows author, content, timestamp, and interaction counts
 
 **Manual Refresh:**
+
 - Create a post or interact to trigger automatic refresh
 - Wait ~2 seconds for blockchain confirmation
 
 ## 🧪 Testing Each Function
 
 ### Test 1: Create a Post
+
 ```
 1. Connect wallet ✓
 2. Type "Hello Suitter!" in compose box
@@ -67,6 +76,7 @@
 ```
 
 ### Test 2: Like a Post
+
 ```
 1. Find any post in feed
 2. Click heart icon
@@ -76,6 +86,7 @@
 ```
 
 ### Test 3: Delete a Post
+
 ```
 1. Create a new post
 2. Wait for it to appear
@@ -85,6 +96,7 @@
 ```
 
 ### Test 4: Create Profile (Advanced)
+
 ```
 1. Open Debug Panel (bottom-right)
 2. Enter a username
@@ -93,6 +105,7 @@
 ```
 
 ### Test 5: Add Comment (Advanced)
+
 ```
 1. Get a post ID (use browser dev tools to inspect a post)
 2. Open Debug Panel
@@ -106,7 +119,9 @@
 ## 📊 What You Should See
 
 ### Post Structure
+
 Each post displays:
+
 - 👤 Author address (shortened: 0xabc...xyz)
 - 💬 Content text
 - ⏰ Time posted (e.g., "5m", "2h", "3d")
@@ -115,7 +130,9 @@ Each post displays:
 - ⋯ Menu (if you're the author)
 
 ### Interaction Feedback
+
 All actions show toast notifications:
+
 - 🔵 Loading: "Creating post..."
 - ✅ Success: "Post created successfully!"
 - ❌ Error: "Failed to create post. Please try again."
@@ -133,21 +150,25 @@ Located in bottom-right corner when wallet is connected:
 ## 🐛 Troubleshooting
 
 ### Post Not Appearing
+
 - Wait 2-3 seconds for blockchain confirmation
 - Check browser console for errors
 - Verify wallet has enough SUI for gas
 
 ### Can't Like/Unlike
+
 - Make sure you're connected with a wallet
 - Check if you already liked (heart should be red)
 - Verify the post ID is correct
 
 ### Delete Not Working
+
 - Ensure you're the post author
 - Only your own posts show the ⋯ menu
 - Check wallet connection
 
 ### General Issues
+
 1. **Refresh the page**: Sometimes helps with state
 2. **Check console**: Open browser DevTools → Console tab
 3. **Verify wallet**: Make sure wallet is connected and on Testnet
@@ -165,22 +186,23 @@ Located in bottom-right corner when wallet is connected:
 ## 🔗 Blockchain Details
 
 - **Network**: Sui Testnet
-- **Package**: 0xbb614228ec46b583aa1db115559fbe1051e0a9f7d900c549bcf3648d25e52ca4
+- **Package**:
+  0xbb614228ec46b583aa1db115559fbe1051e0a9f7d900c549bcf3648d25e52ca4
 - **Module**: suitter
 - **RPC**: https://fullnode.testnet.sui.io:443
 
 ## 📚 Contract Functions In Use
 
-| Function | UI | Status |
-|----------|----|----|
-| `create_post` | Compose box | ✅ Working |
-| `delete_post` | Delete menu | ✅ Working |
-| `like_post` | Heart icon | ✅ Working |
-| `unlike_post` | Heart icon | ✅ Working |
-| `create_profile` | Debug panel | ⚠️ No UI yet |
-| `update_profile` | - | ⚠️ No UI yet |
-| `add_comment` | Debug panel | ⚠️ No UI yet |
-| `edit_post` | - | ❌ Not implemented |
+| Function         | UI          | Status             |
+| ---------------- | ----------- | ------------------ |
+| `create_post`    | Compose box | ✅ Working         |
+| `delete_post`    | Delete menu | ✅ Working         |
+| `like_post`      | Heart icon  | ✅ Working         |
+| `unlike_post`    | Heart icon  | ✅ Working         |
+| `create_profile` | Debug panel | ⚠️ No UI yet       |
+| `update_profile` | -           | ⚠️ No UI yet       |
+| `add_comment`    | Debug panel | ⚠️ No UI yet       |
+| `edit_post`      | -           | ❌ Not implemented |
 
 ## 🎯 Next Steps
 

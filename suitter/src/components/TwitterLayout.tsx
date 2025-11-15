@@ -1,12 +1,5 @@
 import { ReactNode } from "react";
-import {
-  Home,
-  Search,
-  Bell,
-  Mail,
-  User,
-  MoreHorizontal,
-} from "lucide-react";
+import { Home, Search, Bell, Mail, User, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentAccount } from "@mysten/dapp-kit";

@@ -105,7 +105,7 @@ export class SuitterQueries {
 
       // Filter events for this specific author
       const authorEvents = events.data.filter(
-        (event) => (event.parsedJson as any).owner === authorAddress
+        (event) => (event.parsedJson as any).owner === authorAddress,
       );
 
       if (authorEvents.length === 0) {
@@ -114,7 +114,7 @@ export class SuitterQueries {
 
       // Extract suit IDs from filtered events
       const suitIds = authorEvents.map(
-        (event) => (event.parsedJson as any).suit_id
+        (event) => (event.parsedJson as any).suit_id,
       );
 
       // Fetch all suit objects

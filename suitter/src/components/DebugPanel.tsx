@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { usePost, useLike, useProfile, useComment } from "@/hooks/useSuitterContract";
+import {
+  usePost,
+  useLike,
+  useProfile,
+  useComment,
+} from "@/hooks/useSuitterContract";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,8 +22,10 @@ export function DebugPanel() {
   const { likePost } = useLike();
   const { createProfile } = useProfile();
   const { addComment } = useComment();
-  
-  const [testContent, setTestContent] = useState("This is a test post from the debug panel!");
+
+  const [testContent, setTestContent] = useState(
+    "This is a test post from the debug panel!",
+  );
   const [username, setUsername] = useState("TestUser");
   const [postIdForLike, setPostIdForLike] = useState("");
   const [postIdForComment, setPostIdForComment] = useState("");
@@ -38,7 +45,11 @@ export function DebugPanel() {
   const handleTestProfile = async () => {
     try {
       toast.loading("Creating profile...", { id: "test-profile" });
-      await createProfile(username, "bio-cid-placeholder", "avatar-cid-placeholder");
+      await createProfile(
+        username,
+        "bio-cid-placeholder",
+        "avatar-cid-placeholder",
+      );
       toast.success("Profile created!", { id: "test-profile" });
     } catch (error) {
       console.error(error);
@@ -51,7 +62,7 @@ export function DebugPanel() {
       toast.error("Please enter a post ID");
       return;
     }
-    
+
     try {
       toast.loading("Liking post...", { id: "test-like" });
       await likePost(postIdForLike);
@@ -67,14 +78,14 @@ export function DebugPanel() {
       toast.error("Please enter a post ID");
       return;
     }
-    
+
     try {
       const metadata = JSON.stringify({
         text: commentText,
         timestamp: Date.now(),
         version: "1.0",
       });
-      
+
       toast.loading("Adding comment...", { id: "test-comment" });
       await addComment(postIdForComment, metadata);
       toast.success("Comment added!", { id: "test-comment" });
@@ -97,7 +108,9 @@ export function DebugPanel() {
         {/* Contract Info */}
         <div className="p-2 bg-gray-800 rounded">
           <p className="font-semibold mb-1">Contract Info:</p>
-          <p className="text-gray-400 break-all">Package: {SUITTER_CONFIG.PACKAGE_ID.slice(0, 20)}...</p>
+          <p className="text-gray-400 break-all">
+            Package: {SUITTER_CONFIG.PACKAGE_ID.slice(0, 20)}...
+          </p>
           <p className="text-gray-400">Network: Testnet</p>
         </div>
 

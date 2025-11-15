@@ -409,7 +409,11 @@ export function useLike() {
 
   const checkLikeStatus = async (
     postId: string,
-  ): Promise<{ isLiked: boolean; likeObjectId?: string; totalLikes: number }> => {
+  ): Promise<{
+    isLiked: boolean;
+    likeObjectId?: string;
+    totalLikes: number;
+  }> => {
     if (!currentAccount) return { isLiked: false, totalLikes: 0 };
 
     try {
@@ -418,7 +422,7 @@ export function useLike() {
         postId,
       );
       const allLikes = await SuitterQueries.getLikesByPost(postId);
-      
+
       return {
         isLiked: userLikeStatus.liked,
         likeObjectId: userLikeStatus.likeId,

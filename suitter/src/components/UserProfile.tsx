@@ -17,11 +17,13 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
   const currentAccount = useCurrentAccount();
   const { getProfile, createProfile, updateProfile } = useProfile();
   const { getUserPosts } = usePost();
-  
+
   const [profile, setProfile] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"posts" | "replies" | "media">("posts");
+  const [activeTab, setActiveTab] = useState<"posts" | "replies" | "media">(
+    "posts",
+  );
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   const profileAddress = address || currentAccount?.address;
@@ -30,14 +32,14 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
   useEffect(() => {
     const fetchData = async () => {
       if (!profileAddress) return;
-      
+
       setLoading(true);
       try {
         const [profileData, postsData] = await Promise.all([
           getProfile(profileAddress),
           getUserPosts(profileAddress),
         ]);
-        
+
         setProfile(profileData);
         setPosts(postsData);
       } catch (error) {
@@ -50,10 +52,14 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
     fetchData();
   }, [profileAddress]);
 
-  const handleSaveProfile = async (username: string, bio: string, avatar: string) => {
+  const handleSaveProfile = async (
+    username: string,
+    bio: string,
+    avatar: string,
+  ) => {
     try {
       toast.loading("Saving profile...", { id: "save-profile" });
-      
+
       if (profile) {
         // Update existing profile
         await updateProfile(profile.id, username, bio, avatar);
@@ -61,10 +67,10 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
         // Create new profile
         await createProfile(username, bio, avatar);
       }
-      
+
       toast.success("Profile saved!", { id: "save-profile" });
       setEditModalOpen(false);
-      
+
       // Refresh profile data
       setTimeout(async () => {
         const updatedProfile = await getProfile(profileAddress);
@@ -72,7 +78,9 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
       }, 2000);
     } catch (error) {
       console.error("Error saving profile:", error);
-      toast.error("Failed to save profile. Please try again.", { id: "save-profile" });
+      toast.error("Failed to save profile. Please try again.", {
+        id: "save-profile",
+      });
     }
   };
 
@@ -84,7 +92,10 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
     );
   }
 
-  const displayName = profile?.username || profileAddress?.slice(0, 6) + "..." + profileAddress?.slice(-4) || "Unknown";
+  const displayName =
+    profile?.username ||
+    profileAddress?.slice(0, 6) + "..." + profileAddress?.slice(-4) ||
+    "Unknown";
   const bio = profile?.bio_cid || "No bio yet";
 
   return (
@@ -120,11 +131,13 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
             <Avatar className="h-32 w-32 border-4 border-black">
               <AvatarImage
                 src={
-                  profile?.avatar_cid || 
+                  profile?.avatar_cid ||
                   `https://api.dicebear.com/7.x/avataaars/svg?seed=${profileAddress}`
                 }
               />
-              <AvatarFallback className="text-4xl">{displayName[0]}</AvatarFallback>
+              <AvatarFallback className="text-4xl">
+                {displayName[0]}
+              </AvatarFallback>
             </Avatar>
 
             {isOwnProfile ? (
@@ -214,10 +227,11 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
             ) : (
               posts.map((post) => {
                 // Simple contract uses text field directly, not metadata_cid
-                const content = typeof post.metadata_cid === 'string' 
-                  ? post.metadata_cid 
-                  : 'No content';
-                
+                const content =
+                  typeof post.metadata_cid === "string"
+                    ? post.metadata_cid
+                    : "No content";
+
                 // Use current timestamp if not available
                 const timestamp = post.timestamp || Date.now();
                 const timeAgo = getTimeAgo(timestamp);

@@ -1,4 +1,4 @@
-                        import { SuiClient } from "@mysten/sui/client";
+import { SuiClient } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 
 // Contract configuration
@@ -92,7 +92,7 @@ export class SuitterTransactions {
       arguments: [
         tx.object(SUITTER_CONFIG.REGISTRY_ID), // Registry
         tx.pure.string(text),
-        tx.pure.vector('string', mediaBlobIds), // Media blob IDs
+        tx.pure.vector("string", mediaBlobIds), // Media blob IDs
         tx.object(SUITTER_CONFIG.CLOCK_ID), // Sui Clock shared object
       ],
     });

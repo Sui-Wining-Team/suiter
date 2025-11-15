@@ -4,22 +4,22 @@
 
 ### ✅ Fully Working (With UI)
 
-| Feature | How to Use | Status |
-|---------|-----------|--------|
+| Feature         | How to Use                         | Status     |
+| --------------- | ---------------------------------- | ---------- |
 | **Create Post** | Type in compose box → Click "Post" | ✅ Working |
-| **View Posts** | Automatic on page load | ✅ Working |
-| **Like Post** | Click ❤️ icon on post | ✅ Working |
-| **Unlike Post** | Click ❤️ icon again | ✅ Working |
-| **Delete Post** | Click ⋯ menu → Delete | ✅ Working |
+| **View Posts**  | Automatic on page load             | ✅ Working |
+| **Like Post**   | Click ❤️ icon on post              | ✅ Working |
+| **Unlike Post** | Click ❤️ icon again                | ✅ Working |
+| **Delete Post** | Click ⋯ menu → Delete              | ✅ Working |
 
 ### ⚠️ Backend Ready (No UI)
 
-| Feature | Test Via | Status |
-|---------|----------|--------|
+| Feature            | Test Via    | Status             |
+| ------------------ | ----------- | ------------------ |
 | **Create Profile** | Debug Panel | ⚠️ Use debug panel |
-| **Update Profile** | Hook only | ⚠️ No UI |
-| **Add Comment** | Debug Panel | ⚠️ Use debug panel |
-| **View Comments** | Hook only | ⚠️ No UI |
+| **Update Profile** | Hook only   | ⚠️ No UI           |
+| **Add Comment**    | Debug Panel | ⚠️ Use debug panel |
+| **View Comments**  | Hook only   | ⚠️ No UI           |
 
 ### ❌ Not Implemented
 
@@ -48,6 +48,7 @@
 **Location**: Bottom-right corner when connected
 
 **Functions**:
+
 - Create test posts
 - Create user profile
 - Like any post by ID
@@ -89,15 +90,15 @@ App
 
 ## 🔗 Key Files
 
-| File | Purpose |
-|------|---------|
-| `src/lib/suitterContract.ts` | Transaction builders |
-| `src/lib/suitterQueries.ts` | Query functions |
-| `src/hooks/useSuitterContract.ts` | React hooks |
-| `src/hooks/useReadSuits.ts` | Fetch posts |
-| `src/components/TwitterFeed.tsx` | Main feed |
-| `src/components/ComposeTweet.tsx` | Post creation |
-| `src/components/TweetCard.tsx` | Post display |
+| File                              | Purpose              |
+| --------------------------------- | -------------------- |
+| `src/lib/suitterContract.ts`      | Transaction builders |
+| `src/lib/suitterQueries.ts`       | Query functions      |
+| `src/hooks/useSuitterContract.ts` | React hooks          |
+| `src/hooks/useReadSuits.ts`       | Fetch posts          |
+| `src/components/TwitterFeed.tsx`  | Main feed            |
+| `src/components/ComposeTweet.tsx` | Post creation        |
+| `src/components/TweetCard.tsx`    | Post display         |
 
 ## 📊 Data Flow
 
@@ -123,12 +124,12 @@ Updates feed
 
 ## 🐛 Common Issues
 
-| Issue | Solution |
-|-------|----------|
-| Post not appearing | Wait 2-3 seconds |
-| Can't like/unlike | Check wallet connection |
-| Delete not working | Must be post author |
-| No posts showing | Create one first |
+| Issue              | Solution                |
+| ------------------ | ----------------------- |
+| Post not appearing | Wait 2-3 seconds        |
+| Can't like/unlike  | Check wallet connection |
+| Delete not working | Must be post author     |
+| No posts showing   | Create one first        |
 
 ## 💡 Pro Tips
 
@@ -141,14 +142,9 @@ Updates feed
 
 ## 🎉 What's Working
 
-✅ Post creation with validation
-✅ Real-time feed updates
-✅ Like/unlike with counts
-✅ Delete with authorization
-✅ Toast notifications
-✅ Responsive UI
-✅ Wallet integration
-✅ Event-based queries
+✅ Post creation with validation ✅ Real-time feed updates ✅ Like/unlike with
+counts ✅ Delete with authorization ✅ Toast notifications ✅ Responsive UI ✅
+Wallet integration ✅ Event-based queries
 
 ## 📝 Next Steps
 
@@ -160,6 +156,5 @@ Updates feed
 
 ---
 
-**App URL**: http://localhost:5175/
-**Network**: Sui Testnet
-**Package**: 0xbb614228...25e52ca4
+**App URL**: http://localhost:5175/ **Network**: Sui Testnet **Package**:
+0xbb614228...25e52ca4

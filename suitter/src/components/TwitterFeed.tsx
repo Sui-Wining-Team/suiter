@@ -16,11 +16,7 @@ export function TwitterFeed() {
   const currentAccount = useCurrentAccount();
   const { createPost, deletePost } = usePost();
   const { addComment } = useComment();
-  const {
-    likePost,
-    unlikePost,
-    checkLikeStatus,
-  } = useLike();
+  const { likePost, unlikePost, checkLikeStatus } = useLike();
 
   // Use the registry-based hook to get all suits
   const {
@@ -69,10 +65,10 @@ export function TwitterFeed() {
 
     try {
       toast.loading("Creating post...", { id: "create-post" });
-      
+
       // Pass text directly to the contract
       await createPost(content);
-      
+
       toast.success("Post created successfully!", { id: "create-post" });
 
       // Refetch posts after 2 seconds to allow blockchain to update
@@ -81,7 +77,9 @@ export function TwitterFeed() {
       }, 2000);
     } catch (error) {
       console.error("Failed to create post:", error);
-      toast.error("Failed to create post. Please try again.", { id: "create-post" });
+      toast.error("Failed to create post. Please try again.", {
+        id: "create-post",
+      });
     }
   };
 
@@ -98,7 +96,9 @@ export function TwitterFeed() {
       }, 2000);
     } catch (error) {
       console.error("Failed to delete post:", error);
-      toast.error("Failed to delete post. Please try again.", { id: "delete-post" });
+      toast.error("Failed to delete post. Please try again.", {
+        id: "delete-post",
+      });
     }
   };
 
@@ -122,7 +122,9 @@ export function TwitterFeed() {
       }, 2000);
     } catch (error) {
       console.error("Failed to add comment:", error);
-      toast.error("Failed to add comment. Please try again.", { id: "add-comment" });
+      toast.error("Failed to add comment. Please try again.", {
+        id: "add-comment",
+      });
     }
   };
 
@@ -155,7 +157,9 @@ export function TwitterFeed() {
       }));
     } catch (error) {
       console.error("Failed to toggle like:", error);
-      toast.error("Failed to update like. Please try again.", { id: "toggle-like" });
+      toast.error("Failed to update like. Please try again.", {
+        id: "toggle-like",
+      });
     }
   };
 
@@ -220,7 +224,9 @@ export function TwitterFeed() {
 
         // The simple contract stores text directly
         const text = suit.text || "No content";
-        const timestamp = suit.timestamp ? parseInt(suit.timestamp) : Date.now();
+        const timestamp = suit.timestamp
+          ? parseInt(suit.timestamp)
+          : Date.now();
 
         const isOwner = suit.owner === currentAccount?.address;
         const likeStatus = likeStatuses[postId] || {};
@@ -240,7 +246,9 @@ export function TwitterFeed() {
             deleted={false}
             onLike={() => handleToggleLike(postId)}
             onDelete={() => handleDeletePost(postId)}
-            onComment={() => handleOpenCommentModal({ ...suit, id: postId, text })}
+            onComment={() =>
+              handleOpenCommentModal({ ...suit, id: postId, text })
+            }
           />
         );
       })}
@@ -251,7 +259,11 @@ export function TwitterFeed() {
           isOpen={commentModalOpen}
           onClose={() => setCommentModalOpen(false)}
           onComment={(content) => handleComment(selectedPost.id, content)}
-          postAuthor={selectedPost.owner?.slice(0, 6) + "..." + selectedPost.owner?.slice(-4) || "Unknown"}
+          postAuthor={
+            selectedPost.owner?.slice(0, 6) +
+              "..." +
+              selectedPost.owner?.slice(-4) || "Unknown"
+          }
           postContent={selectedPost.text || ""}
           postTimestamp={getTimeAgo(selectedPost.timestamp || Date.now())}
         />

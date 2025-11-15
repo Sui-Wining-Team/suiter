@@ -113,7 +113,7 @@ export function CommentModal({
 
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-800">
                 <div className="flex-1" />
-                
+
                 <div className="flex items-center gap-3">
                   {comment.length > 0 && (
                     <div className="flex items-center gap-2">

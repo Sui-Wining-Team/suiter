@@ -12,9 +12,21 @@ const trendingTopics = [
 ];
 
 const whoToFollow = [
-  { name: "Sui Foundation", handle: "SuiFoundation", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=sui" },
-  { name: "Move Language", handle: "MoveLang", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=move" },
-  { name: "Web3 Dev", handle: "Web3Builder", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=web3" },
+  {
+    name: "Sui Foundation",
+    handle: "SuiFoundation",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=sui",
+  },
+  {
+    name: "Move Language",
+    handle: "MoveLang",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=move",
+  },
+  {
+    name: "Web3 Dev",
+    handle: "Web3Builder",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=web3",
+  },
 ];
 
 export function TrendingSidebar() {
@@ -39,7 +51,8 @@ export function TrendingSidebar() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-400 mb-3">
-            Subscribe to unlock new features and if eligible, receive a share of revenue.
+            Subscribe to unlock new features and if eligible, receive a share of
+            revenue.
           </p>
           <Button className="bg-blue-500 hover:bg-blue-600 rounded-full font-bold">
             Subscribe
@@ -116,18 +129,30 @@ export function TrendingSidebar() {
       {/* Footer Links */}
       <div className="px-4 py-3 text-xs text-gray-500 space-y-2">
         <div className="flex flex-wrap gap-2">
-          <a href="#" className="hover:underline">Terms of Service</a>
+          <a href="#" className="hover:underline">
+            Terms of Service
+          </a>
           <span>·</span>
-          <a href="#" className="hover:underline">Privacy Policy</a>
+          <a href="#" className="hover:underline">
+            Privacy Policy
+          </a>
           <span>·</span>
-          <a href="#" className="hover:underline">Cookie Policy</a>
+          <a href="#" className="hover:underline">
+            Cookie Policy
+          </a>
         </div>
         <div className="flex flex-wrap gap-2">
-          <a href="#" className="hover:underline">Accessibility</a>
+          <a href="#" className="hover:underline">
+            Accessibility
+          </a>
           <span>·</span>
-          <a href="#" className="hover:underline">Ads info</a>
+          <a href="#" className="hover:underline">
+            Ads info
+          </a>
           <span>·</span>
-          <a href="#" className="hover:underline">More</a>
+          <a href="#" className="hover:underline">
+            More
+          </a>
         </div>
         <p>© 2025 Suitter, Inc.</p>
       </div>

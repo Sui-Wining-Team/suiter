@@ -38,14 +38,17 @@ function App() {
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="max-w-2xl w-full px-6 text-center">
           <div className="mb-8">
-            <svg viewBox="0 0 24 24" className="h-16 w-16 fill-white mx-auto mb-6">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-16 w-16 fill-white mx-auto mb-6"
+            >
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
           </div>
-          
+
           <h1 className="text-6xl font-bold mb-4">Happening now</h1>
           <p className="text-3xl font-bold mb-8">Join today.</p>
-          
+
           <div className="max-w-sm mx-auto space-y-4">
             <Button
               onClick={() => setIsConnectModalOpen(true)}
@@ -53,9 +56,10 @@ function App() {
             >
               Connect Wallet
             </Button>
-            
+
             <p className="text-sm text-gray-500 px-4">
-              By connecting, you agree to the Terms of Service and Privacy Policy.
+              By connecting, you agree to the Terms of Service and Privacy
+              Policy.
             </p>
           </div>
         </div>

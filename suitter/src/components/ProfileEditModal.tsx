@@ -104,9 +104,14 @@ export function ProfileEditModal({
             <div className="relative">
               <Avatar className="h-32 w-32 border-4 border-black">
                 <AvatarImage
-                  src={avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentAddress}`}
+                  src={
+                    avatar ||
+                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentAddress}`
+                  }
                 />
-                <AvatarFallback className="text-4xl">{username[0] || "U"}</AvatarFallback>
+                <AvatarFallback className="text-4xl">
+                  {username[0] || "U"}
+                </AvatarFallback>
               </Avatar>
               <Button
                 variant="ghost"
@@ -166,14 +171,16 @@ export function ProfileEditModal({
                 className="bg-transparent border-gray-700 focus:border-blue-500"
               />
               <p className="text-xs text-gray-500">
-                Enter a URL to a custom avatar image, or leave empty to use an auto-generated avatar
+                Enter a URL to a custom avatar image, or leave empty to use an
+                auto-generated avatar
               </p>
             </div>
 
             <div className="p-4 bg-gray-900 rounded-lg">
               <p className="text-sm text-gray-400">
-                <span className="font-semibold">Note:</span> Profile data is stored on the blockchain.
-                Make sure your information is accurate before saving.
+                <span className="font-semibold">Note:</span> Profile data is
+                stored on the blockchain. Make sure your information is accurate
+                before saving.
               </p>
             </div>
           </div>
