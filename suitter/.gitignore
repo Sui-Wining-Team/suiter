@@ -1,0 +1,9 @@
+node_modules/
+
+dist/ or build/
+
+.env
+
+npm-debug.log*
+
+yarn-error.log
