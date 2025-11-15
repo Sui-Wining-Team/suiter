@@ -54,21 +54,17 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
 
   const handleSaveProfile = async (
     username: string,
+    name: string,
     bio: string,
-    avatar: string,
+    avatarBlobId: string,
   ) => {
     try {
       toast.loading("Saving profile...", { id: "save-profile" });
 
-      if (profile) {
-        // Update existing profile
-        await updateProfile(profile.id, username, bio, avatar);
-      } else {
-        // Create new profile
-        await createProfile(username, bio, avatar);
-      }
+      // Create new profile (contract doesn't support updates yet)
+      await createProfile(username, name, bio, avatarBlobId);
 
-      toast.success("Profile saved!", { id: "save-profile" });
+      toast.success("Profile created successfully!", { id: "save-profile" });
       setEditModalOpen(false);
 
       // Refresh profile data
@@ -81,6 +77,7 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
       toast.error("Failed to save profile. Please try again.", {
         id: "save-profile",
       });
+      throw error;
     }
   };
 
@@ -273,10 +270,13 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
         isOpen={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         onSave={handleSaveProfile}
-        currentUsername={profile?.username || ""}
-        currentBio={profile?.bio_cid || ""}
-        currentAvatar={profile?.avatar_cid || ""}
-        currentAddress={profileAddress}
+        initialData={{
+          username: profile?.username || "",
+          name: profile?.name || "",
+          bio: profile?.bio || "",
+          avatarBlobId: profile?.avatar_blob_id || "",
+        }}
+        isCreating={!profile}
       />
     </div>
   );

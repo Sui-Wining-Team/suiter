@@ -60,14 +60,14 @@ export function TwitterFeed() {
   }, [suits, currentAccount]);
 
   // Handle creating a post
-  const handleCreatePost = async (content: string) => {
+  const handleCreatePost = async (content: string, mediaBlobIds: string[]) => {
     if (!currentAccount || !content.trim()) return;
 
     try {
       toast.loading("Creating post...", { id: "create-post" });
 
-      // Pass text directly to the contract
-      await createPost(content);
+      // Pass text and media blob IDs to the contract
+      await createPost(content, mediaBlobIds);
 
       toast.success("Post created successfully!", { id: "create-post" });
 
@@ -103,17 +103,14 @@ export function TwitterFeed() {
   };
 
   // Handle adding a comment
-  const handleComment = async (postId: string, content: string) => {
+  const handleComment = async (
+    postId: string,
+    content: string,
+    mediaBlobIds: string[],
+  ) => {
     try {
-      const metadata = {
-        text: content,
-        timestamp: Date.now(),
-        version: "1.0",
-      };
-      const metadataCid = JSON.stringify(metadata);
-
       toast.loading("Adding comment...", { id: "add-comment" });
-      await addComment(postId, metadataCid);
+      await addComment(postId, content, mediaBlobIds);
       toast.success("Comment added!", { id: "add-comment" });
 
       // Refetch posts to update comment count
@@ -224,6 +221,7 @@ export function TwitterFeed() {
 
         // The simple contract stores text directly
         const text = suit.text || "No content";
+        const mediaBlobIds = suit.media_blob_ids || [];
         const timestamp = suit.timestamp
           ? parseInt(suit.timestamp)
           : Date.now();
@@ -238,6 +236,7 @@ export function TwitterFeed() {
             author={suit.owner.slice(0, 6) + "..." + suit.owner.slice(-4)}
             authorAddress={suit.owner}
             content={text}
+            mediaBlobIds={mediaBlobIds}
             timestamp={timeAgo}
             likes={likeStatus.totalLikes || 0}
             isLiked={likeStatus.isLiked || false}
@@ -258,7 +257,9 @@ export function TwitterFeed() {
         <CommentModal
           isOpen={commentModalOpen}
           onClose={() => setCommentModalOpen(false)}
-          onComment={(content) => handleComment(selectedPost.id, content)}
+          onComment={(content, mediaBlobIds) =>
+            handleComment(selectedPost.id, content, mediaBlobIds)
+          }
           postAuthor={
             selectedPost.owner?.slice(0, 6) +
               "..." +

@@ -4,17 +4,19 @@ import { Transaction } from "@mysten/sui/transactions";
 // Contract configuration
 export const SUITTER_CONFIG = {
   PACKAGE_ID:
-    "0x4ec459c5ba3cd2e9f5986ba0ad97cf285daa9607106b9440bd27938860a1684e",
+    "0x3410da65b01707ee3f26e519784902f07b19810b298309ea1c02ea7f2add5505",
   MODULE_NAME: "suit",
   REGISTRY_ID:
-    "0xc0d9b31dded7c12517c0c6c54d10f2111c367d5f6202076f3bd2560ea666912c",
+    "0xfc02e2746eed968f9a9278f2fb6fa4b3b283bf485299ce161d35f72ba29654c8",
+  PROFILE_REGISTRY_ID:
+    "0x5528819c99c1a4d01312a0f9d4d7e9ba1ff5676007f6211b5942e45d68bc93cc",
   // Sui shared clock object
   CLOCK_ID: "0x6",
 };
 
 // Initialize Sui client
 export const suiClient = new SuiClient({
-  url: "https://fullnode.devnet.sui.io:443",
+  url: "https://fullnode.testnet.sui.io:443",
 });
 
 // Types matching the Move contract
@@ -94,6 +96,92 @@ export class SuitterTransactions {
         tx.pure.string(text),
         tx.pure.vector("string", mediaBlobIds), // Media blob IDs
         tx.object(SUITTER_CONFIG.CLOCK_ID), // Sui Clock shared object
+      ],
+    });
+
+    return tx;
+  }
+
+  /**
+   * Create a comment on a post
+   */
+  static createComment(
+    suitId: string,
+    text: string,
+    mediaBlobIds: string[] = [],
+  ): Transaction {
+    const tx = new Transaction();
+
+    tx.moveCall({
+      target: `${SUITTER_CONFIG.PACKAGE_ID}::${SUITTER_CONFIG.MODULE_NAME}::create_comment`,
+      arguments: [
+        tx.object(SUITTER_CONFIG.REGISTRY_ID), // Registry
+        tx.object(suitId), // Parent suit
+        tx.pure.string(text),
+        tx.pure.vector("string", mediaBlobIds), // Media blob IDs
+        tx.object(SUITTER_CONFIG.CLOCK_ID), // Clock
+      ],
+    });
+
+    return tx;
+  }
+
+  /**
+   * Like a post
+   */
+  static likePost(suitId: string): Transaction {
+    const tx = new Transaction();
+
+    tx.moveCall({
+      target: `${SUITTER_CONFIG.PACKAGE_ID}::${SUITTER_CONFIG.MODULE_NAME}::like_suit`,
+      arguments: [
+        tx.object(SUITTER_CONFIG.REGISTRY_ID), // Registry
+        tx.object(suitId), // Suit to like
+        tx.object(SUITTER_CONFIG.CLOCK_ID), // Clock
+      ],
+    });
+
+    return tx;
+  }
+
+  /**
+   * Unlike a post
+   */
+  static unlikePost(suitId: string): Transaction {
+    const tx = new Transaction();
+
+    tx.moveCall({
+      target: `${SUITTER_CONFIG.PACKAGE_ID}::${SUITTER_CONFIG.MODULE_NAME}::unlike_suit`,
+      arguments: [
+        tx.object(SUITTER_CONFIG.REGISTRY_ID), // Registry
+        tx.object(suitId), // Suit to unlike
+        tx.object(SUITTER_CONFIG.CLOCK_ID), // Clock
+      ],
+    });
+
+    return tx;
+  }
+
+  /**
+   * Create a user profile
+   */
+  static createProfile(
+    username: string,
+    name: string,
+    bio: string,
+    avatarBlobId: string,
+  ): Transaction {
+    const tx = new Transaction();
+
+    tx.moveCall({
+      target: `${SUITTER_CONFIG.PACKAGE_ID}::sui_profile::create_user_profile`,
+      arguments: [
+        tx.object(SUITTER_CONFIG.PROFILE_REGISTRY_ID), // ProfileRegistry
+        tx.pure.string(username),
+        tx.pure.string(name),
+        tx.pure.string(bio),
+        tx.pure.string(avatarBlobId),
+        tx.object(SUITTER_CONFIG.CLOCK_ID), // Clock
       ],
     });
 

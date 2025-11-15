@@ -15,11 +15,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MediaDisplay } from "./MediaDisplay";
 
 interface TweetCardProps {
   author: string;
   authorAddress: string;
   content: string;
+  mediaBlobIds?: string[];
   timestamp: string;
   likes: number;
   isLiked: boolean;
@@ -35,6 +37,7 @@ export function TweetCard({
   author,
   authorAddress,
   content,
+  mediaBlobIds = [],
   timestamp,
   likes,
   isLiked,
@@ -123,6 +126,11 @@ export function TweetCard({
             <p className="text-white whitespace-pre-wrap break-words">
               {content}
             </p>
+
+            {/* Media Display */}
+            {mediaBlobIds && mediaBlobIds.length > 0 && (
+              <MediaDisplay blobIds={mediaBlobIds} />
+            )}
           </div>
 
           {/* Actions */}

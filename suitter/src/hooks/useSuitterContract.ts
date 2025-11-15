@@ -18,8 +18,9 @@ export function useProfile() {
 
   const createProfile = async (
     username: string,
-    bioCid: string,
-    avatarCid: string,
+    name: string,
+    bio: string,
+    avatarBlobId: string,
   ) => {
     if (!currentAccount) {
       setError("No wallet connected");
@@ -30,7 +31,12 @@ export function useProfile() {
     setError(null);
 
     try {
-      const tx = SuitterTransactions.createProfile(username, bioCid, avatarCid);
+      const tx = SuitterTransactions.createProfile(
+        username,
+        name,
+        bio,
+        avatarBlobId,
+      );
 
       await new Promise((resolve, reject) => {
         signAndExecute(
@@ -49,6 +55,7 @@ export function useProfile() {
       });
     } catch (err: any) {
       setError(err.message || "Failed to create profile");
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -128,7 +135,7 @@ export function usePost() {
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const currentAccount = useCurrentAccount();
 
-  const createPost = async (text: string) => {
+  const createPost = async (text: string, mediaBlobIds: string[] = []) => {
     if (!currentAccount) {
       setError("No wallet connected");
       return;
@@ -138,7 +145,7 @@ export function usePost() {
     setError(null);
 
     try {
-      const tx = SuitterTransactions.createPost(text);
+      const tx = SuitterTransactions.createPost(text, mediaBlobIds);
 
       await new Promise((resolve, reject) => {
         signAndExecute(
@@ -157,6 +164,7 @@ export function usePost() {
       });
     } catch (err: any) {
       setError(err.message || "Failed to create post");
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -272,9 +280,9 @@ export function useComment() {
   const currentAccount = useCurrentAccount();
 
   const addComment = async (
-    postId: string,
-    metadataCid: string,
-    parentCommentId?: string,
+    suitId: string,
+    text: string,
+    mediaBlobIds: string[] = [],
   ) => {
     if (!currentAccount) {
       setError("No wallet connected");
@@ -285,11 +293,7 @@ export function useComment() {
     setError(null);
 
     try {
-      const tx = SuitterTransactions.addComment(
-        postId,
-        metadataCid,
-        parentCommentId,
-      );
+      const tx = SuitterTransactions.createComment(suitId, text, mediaBlobIds);
 
       await new Promise((resolve, reject) => {
         signAndExecute(
@@ -308,6 +312,7 @@ export function useComment() {
       });
     } catch (err: any) {
       setError(err.message || "Failed to add comment");
+      throw err;
     } finally {
       setLoading(false);
     }

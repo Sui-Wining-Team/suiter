@@ -2,23 +2,27 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Image, Smile, Calendar, MapPin } from "lucide-react";
 import { useCurrentAccount } from "@mysten/dapp-kit";
+import { MediaUploader } from "./MediaUploader";
+import { toast } from "sonner";
 
 interface ComposeTweetProps {
-  onPost: (content: string) => void;
+  onPost: (content: string, mediaBlobIds: string[]) => void;
   placeholder?: string;
   autoFocus?: boolean;
+  disabled?: boolean;
 }
 
 export function ComposeTweet({
   onPost,
   placeholder = "What is happening?!",
   autoFocus = false,
+  disabled = false,
 }: ComposeTweetProps) {
   const currentAccount = useCurrentAccount();
   const [content, setContent] = useState("");
   const [charCount, setCharCount] = useState(0);
+  const [mediaBlobIds, setMediaBlobIds] = useState<string[]>([]);
   const maxChars = 280;
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -28,10 +32,16 @@ export function ComposeTweet({
   };
 
   const handlePost = () => {
+    if (!currentAccount) {
+      toast.error("Please connect your wallet to post");
+      return;
+    }
+
     if (content.trim() && content.length <= maxChars) {
-      onPost(content);
+      onPost(content, mediaBlobIds);
       setContent("");
       setCharCount(0);
+      setMediaBlobIds([]);
     }
   };
 
@@ -43,8 +53,19 @@ export function ComposeTweet({
         ? "text-yellow-500"
         : "text-blue-500";
 
+  const isPostDisabled =
+    !currentAccount || disabled || !content.trim() || charCount > maxChars;
+
   return (
     <div className="border-b border-gray-800 p-4">
+      {!currentAccount && (
+        <div className="mb-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+          <p className="text-sm text-blue-400">
+            Connect your wallet to create posts
+          </p>
+        </div>
+      )}
+
       <div className="flex gap-3">
         <Avatar className="h-12 w-12 flex-shrink-0">
           <AvatarImage
@@ -63,40 +84,23 @@ export function ComposeTweet({
             onChange={handleContentChange}
             placeholder={placeholder}
             autoFocus={autoFocus}
+            disabled={!currentAccount || disabled}
             className="min-h-[120px] text-xl bg-transparent border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500"
           />
 
-          {/* Media Options */}
+          {/* Media Uploader */}
+          <MediaUploader
+            onMediaChange={setMediaBlobIds}
+            maxFiles={4}
+            disabled={!currentAccount || disabled}
+          />
+
+          {/* Post Actions */}
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-800">
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-blue-500 hover:bg-blue-500/10 rounded-full p-2"
-              >
-                <Image className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-blue-500 hover:bg-blue-500/10 rounded-full p-2"
-              >
-                <Smile className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-blue-500 hover:bg-blue-500/10 rounded-full p-2"
-              >
-                <Calendar className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-blue-500 hover:bg-blue-500/10 rounded-full p-2"
-              >
-                <MapPin className="h-5 w-5" />
-              </Button>
+            <div className="text-sm text-gray-500">
+              {mediaBlobIds.length > 0 && (
+                <span>{mediaBlobIds.length} media file(s) attached</span>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
@@ -134,7 +138,7 @@ export function ComposeTweet({
 
               <Button
                 onClick={handlePost}
-                disabled={!content.trim() || charCount > maxChars}
+                disabled={isPostDisabled}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full px-6 disabled:opacity-50"
               >
                 Post

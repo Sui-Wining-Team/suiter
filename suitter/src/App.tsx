@@ -32,67 +32,56 @@ function App() {
 
   const isConnected = currentAccount || zkLoginAddress;
 
-  // Show connect modal if not connected
-  if (!isConnected) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="max-w-2xl w-full px-6 text-center">
-          <div className="mb-8">
-            <svg
-              viewBox="0 0 24 24"
-              className="h-16 w-16 fill-white mx-auto mb-6"
-            >
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
-          </div>
-
-          <h1 className="text-6xl font-bold mb-4">Happening now</h1>
-          <p className="text-3xl font-bold mb-8">Join today.</p>
-
-          <div className="max-w-sm mx-auto space-y-4">
+  // Allow viewing without wallet connection
+  return (
+    <div className="min-h-screen bg-black text-white">
+      {!isConnected && (
+        <div className="border-b border-gray-800 bg-black/80 backdrop-blur-md sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg viewBox="0 0 24 24" className="h-8 w-8 fill-white">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              <span className="text-sm text-gray-400">
+                Viewing only - Connect wallet to post
+              </span>
+            </div>
             <Button
               onClick={() => setIsConnectModalOpen(true)}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full py-6 text-lg"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full px-6"
             >
               Connect Wallet
             </Button>
-
-            <p className="text-sm text-gray-500 px-4">
-              By connecting, you agree to the Terms of Service and Privacy
-              Policy.
-            </p>
           </div>
         </div>
+      )}
 
-        <ConnectModal
-          isOpen={isConnectModalOpen}
-          onClose={() => setIsConnectModalOpen(false)}
-        />
-      </div>
-    );
-  }
+      <TwitterLayout activeTab={activeTab} onTabChange={setActiveTab}>
+        <Toaster position="bottom-center" theme="dark" />
+        {activeTab === "home" && <TwitterFeed />}
+        {activeTab === "profile" && <UserProfile />}
+        {activeTab === "explore" && (
+          <div className="p-8 text-center text-gray-500">
+            Explore page coming soon...
+          </div>
+        )}
+        {activeTab === "notifications" && (
+          <div className="p-8 text-center text-gray-500">
+            Notifications coming soon...
+          </div>
+        )}
+        {activeTab === "messages" && (
+          <div className="p-8 text-center text-gray-500">
+            Messages coming soon...
+          </div>
+        )}
+      </TwitterLayout>
 
-  return (
-    <TwitterLayout activeTab={activeTab} onTabChange={setActiveTab}>
-      <Toaster position="bottom-center" theme="dark" />
-      {activeTab === "home" && <TwitterFeed />}
-      {activeTab === "profile" && <UserProfile />}
-      {activeTab === "explore" && (
-        <div className="p-8 text-center text-gray-500">
-          Explore page coming soon...
-        </div>
-      )}
-      {activeTab === "notifications" && (
-        <div className="p-8 text-center text-gray-500">
-          Notifications coming soon...
-        </div>
-      )}
-      {activeTab === "messages" && (
-        <div className="p-8 text-center text-gray-500">
-          Messages coming soon...
-        </div>
-      )}
-    </TwitterLayout>
+      <ConnectModal
+        isOpen={isConnectModalOpen}
+        onClose={() => setIsConnectModalOpen(false)}
+      />
+    </div>
   );
 }
 

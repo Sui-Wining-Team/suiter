@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,179 +10,278 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, X } from "lucide-react";
+import { useCurrentAccount } from "@mysten/dapp-kit";
+import { Camera, Loader2, X } from "lucide-react";
+import { uploadToWalrus, validateFile } from "@/lib/walrusUpload";
+import { getWalrusBlobUrl } from "@/lib/walrusConfig";
 import { toast } from "sonner";
 
 interface ProfileEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (username: string, bio: string, avatar: string) => void;
-  currentUsername?: string;
-  currentBio?: string;
-  currentAvatar?: string;
-  currentAddress?: string;
+  onSave: (
+    username: string,
+    name: string,
+    bio: string,
+    avatarBlobId: string,
+  ) => Promise<void>;
+  initialData?: {
+    username?: string;
+    name?: string;
+    bio?: string;
+    avatarBlobId?: string;
+  };
+  isCreating?: boolean;
 }
 
 export function ProfileEditModal({
   isOpen,
   onClose,
   onSave,
-  currentUsername = "",
-  currentBio = "",
-  currentAvatar = "",
-  currentAddress = "",
+  initialData = {},
+  isCreating = false,
 }: ProfileEditModalProps) {
-  const [username, setUsername] = useState(currentUsername);
-  const [bio, setBio] = useState(currentBio);
-  const [avatar, setAvatar] = useState(currentAvatar);
+  const currentAccount = useCurrentAccount();
+  const [username, setUsername] = useState(initialData.username || "");
+  const [name, setName] = useState(initialData.name || "");
+  const [bio, setBio] = useState(initialData.bio || "");
+  const [avatarBlobId, setAvatarBlobId] = useState(
+    initialData.avatarBlobId || "",
+  );
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(
+    initialData.avatarBlobId
+      ? getWalrusBlobUrl(initialData.avatarBlobId)
+      : null,
+  );
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    setUsername(currentUsername);
-    setBio(currentBio);
-    setAvatar(currentAvatar);
-  }, [currentUsername, currentBio, currentAvatar]);
+  const handleAvatarSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  const handleSave = () => {
-    if (!username.trim()) {
-      toast.error("Username is required");
+    const validation = validateFile(file, 5); // 5MB limit for avatars
+    if (!validation.valid) {
+      toast.error(validation.error);
       return;
     }
 
-    if (username.length > 50) {
-      toast.error("Username must be 50 characters or less");
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are allowed for avatars");
       return;
     }
 
-    if (bio.length > 280) {
-      toast.error("Bio must be 280 characters or less");
+    setUploading(true);
+    const preview = URL.createObjectURL(file);
+    setAvatarPreview(preview);
+
+    try {
+      toast.loading("Uploading avatar...", { id: "avatar-upload" });
+      const result = await uploadToWalrus(file);
+      setAvatarBlobId(result.blobId);
+      setAvatarPreview(getWalrusBlobUrl(result.blobId));
+      toast.success("Avatar uploaded successfully!", { id: "avatar-upload" });
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+      toast.error("Failed to upload avatar", { id: "avatar-upload" });
+      setAvatarPreview(null);
+      setAvatarBlobId("");
+    } finally {
+      setUploading(false);
+    }
+
+    // Clear input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSave = async () => {
+    if (!currentAccount) {
+      toast.error("Please connect your wallet");
       return;
     }
 
-    onSave(username, bio, avatar);
+    if (!username.trim() || !name.trim()) {
+      toast.error("Username and name are required");
+      return;
+    }
+
+    if (username.length < 3 || username.length > 20) {
+      toast.error("Username must be between 3 and 20 characters");
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      toast.error(
+        "Username can only contain letters, numbers, and underscores",
+      );
+      return;
+    }
+
+    if (isCreating && !avatarBlobId) {
+      toast.error("Please upload an avatar");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await onSave(username, name, bio, avatarBlobId || "default_avatar");
+      onClose();
+    } catch (error) {
+      console.error("Failed to save profile:", error);
+      // Error toast is handled by the parent component
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-black border-gray-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-black border-gray-800 text-white max-w-2xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="rounded-full h-8 w-8 p-0"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-              <DialogTitle>Edit profile</DialogTitle>
-            </div>
+            <DialogTitle>
+              {isCreating ? "Create Profile" : "Edit Profile"}
+            </DialogTitle>
             <Button
-              onClick={handleSave}
-              className="bg-white text-black hover:bg-gray-200 rounded-full font-bold px-6"
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="rounded-full h-8 w-8 p-0"
+              disabled={saving}
             >
-              Save
+              <X className="h-5 w-5" />
             </Button>
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 mt-4">
-          {/* Cover Image */}
-          <div className="relative">
-            <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg" />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/70"
-            >
-              <Camera className="h-5 w-5" />
-            </Button>
-          </div>
-
-          {/* Avatar */}
-          <div className="flex items-start gap-4 -mt-16 px-4">
+        <div className="space-y-6">
+          {/* Avatar Upload */}
+          <div className="flex flex-col items-center gap-4">
             <div className="relative">
-              <Avatar className="h-32 w-32 border-4 border-black">
-                <AvatarImage
-                  src={
-                    avatar ||
-                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentAddress}`
-                  }
-                />
-                <AvatarFallback className="text-4xl">
-                  {username[0] || "U"}
+              <Avatar className="h-32 w-32">
+                {avatarPreview ? (
+                  <AvatarImage src={avatarPreview} />
+                ) : (
+                  <AvatarImage
+                    src={
+                      currentAccount
+                        ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentAccount.address}`
+                        : undefined
+                    }
+                  />
+                )}
+                <AvatarFallback>
+                  {username.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
+
               <Button
-                variant="ghost"
+                type="button"
                 size="sm"
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/50 hover:bg-black/70"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading || saving}
+                className="absolute bottom-0 right-0 rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0"
               >
-                <Camera className="h-5 w-5" />
+                {uploading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Camera className="h-5 w-5" />
+                )}
               </Button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarSelect}
+                className="hidden"
+                disabled={uploading || saving}
+              />
             </div>
+
+            <p className="text-sm text-gray-500">
+              Click the camera icon to upload an avatar
+            </p>
           </div>
 
-          {/* Form Fields */}
-          <div className="space-y-4 px-4">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-gray-400">
-                Username
-              </Label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Your username"
-                className="bg-transparent border-gray-700 focus:border-blue-500"
-                maxLength={50}
-              />
-              <p className="text-xs text-gray-500 text-right">
-                {username.length}/50
-              </p>
-            </div>
+          {/* Username */}
+          <div className="space-y-2">
+            <Label htmlFor="username">Username*</Label>
+            <Input
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter username (3-20 characters)"
+              disabled={saving || !isCreating}
+              maxLength={20}
+              className="bg-transparent border-gray-700 focus:border-blue-500"
+            />
+            <p className="text-xs text-gray-500">
+              Letters, numbers, and underscores only. Cannot be changed later.
+            </p>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="bio" className="text-gray-400">
-                Bio
-              </Label>
-              <Textarea
-                id="bio"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                placeholder="Tell us about yourself"
-                className="bg-transparent border-gray-700 focus:border-blue-500 min-h-[100px] resize-none"
-                maxLength={280}
-              />
-              <p className="text-xs text-gray-500 text-right">
-                {bio.length}/280
-              </p>
-            </div>
+          {/* Name */}
+          <div className="space-y-2">
+            <Label htmlFor="name">Display Name*</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your display name"
+              disabled={saving}
+              maxLength={50}
+              className="bg-transparent border-gray-700 focus:border-blue-500"
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="avatar" className="text-gray-400">
-                Avatar URL (optional)
-              </Label>
-              <Input
-                id="avatar"
-                value={avatar}
-                onChange={(e) => setAvatar(e.target.value)}
-                placeholder="https://... or leave empty for generated avatar"
-                className="bg-transparent border-gray-700 focus:border-blue-500"
-              />
-              <p className="text-xs text-gray-500">
-                Enter a URL to a custom avatar image, or leave empty to use an
-                auto-generated avatar
-              </p>
-            </div>
+          {/* Bio */}
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio</Label>
+            <Textarea
+              id="bio"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Tell us about yourself..."
+              disabled={saving}
+              maxLength={160}
+              rows={3}
+              className="bg-transparent border-gray-700 focus:border-blue-500 resize-none"
+            />
+            <p className="text-xs text-gray-500 text-right">{bio.length}/160</p>
+          </div>
 
-            <div className="p-4 bg-gray-900 rounded-lg">
-              <p className="text-sm text-gray-400">
-                <span className="font-semibold">Note:</span> Profile data is
-                stored on the blockchain. Make sure your information is accurate
-                before saving.
-              </p>
-            </div>
+          {/* Action Buttons */}
+          <div className="flex gap-3 justify-end">
+            <Button
+              variant="outline"
+              onClick={onClose}
+              disabled={saving}
+              className="border-gray-700 hover:bg-gray-900"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={saving || uploading}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : isCreating ? (
+                "Create Profile"
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
           </div>
         </div>
       </DialogContent>

@@ -10,11 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { X } from "lucide-react";
+import { MediaUploader } from "./MediaUploader";
+import { toast } from "sonner";
 
 interface CommentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onComment: (content: string) => void;
+  onComment: (content: string, mediaBlobIds: string[]) => void;
   postAuthor: string;
   postContent: string;
   postTimestamp: string;
@@ -30,12 +32,19 @@ export function CommentModal({
 }: CommentModalProps) {
   const currentAccount = useCurrentAccount();
   const [comment, setComment] = useState("");
+  const [mediaBlobIds, setMediaBlobIds] = useState<string[]>([]);
   const maxChars = 280;
 
   const handleSubmit = () => {
+    if (!currentAccount) {
+      toast.error("Please connect your wallet to comment");
+      return;
+    }
+
     if (comment.trim() && comment.length <= maxChars) {
-      onComment(comment);
+      onComment(comment, mediaBlobIds);
       setComment("");
+      setMediaBlobIds([]);
       onClose();
     }
   };
@@ -108,11 +117,23 @@ export function CommentModal({
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Post your reply"
+                disabled={!currentAccount}
                 className="min-h-[100px] text-xl bg-transparent border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500"
               />
 
+              {/* Media Uploader */}
+              <MediaUploader
+                onMediaChange={setMediaBlobIds}
+                maxFiles={4}
+                disabled={!currentAccount}
+              />
+
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-800">
-                <div className="flex-1" />
+                <div className="text-sm text-gray-500">
+                  {mediaBlobIds.length > 0 && (
+                    <span>{mediaBlobIds.length} media file(s) attached</span>
+                  )}
+                </div>
 
                 <div className="flex items-center gap-3">
                   {comment.length > 0 && (
