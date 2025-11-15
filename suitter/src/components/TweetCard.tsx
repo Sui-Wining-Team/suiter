@@ -9,6 +9,8 @@ import {
   MoreHorizontal,
   Trash2,
   BarChart3,
+  Bookmark,
+  BadgeCheck,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -18,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MediaDisplay } from "./MediaDisplay";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface TweetCardProps {
   author: string;
@@ -31,6 +34,7 @@ interface TweetCardProps {
   reshareCount?: number;
   isOwner?: boolean;
   deleted?: boolean;
+  verified?: boolean;
   onClick?: () => void;
   mediaUrls?: string[];
   onLike?: () => void;
@@ -52,6 +56,7 @@ export function TweetCard({
   reshareCount = 0,
   isOwner = false,
   deleted = false,
+  verified = false,
   onClick,
   mediaUrls = [],
   onLike,
@@ -60,15 +65,21 @@ export function TweetCard({
   onShare,
   onProfileClick,
 }: TweetCardProps) {
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const [localLiked, setLocalLiked] = useState(isLiked);
   const [localLikes, setLocalLikes] = useState(likes);
-  const [showStats, setShowStats] = useState(false);
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
     setLocalLiked(!localLiked);
     setLocalLikes(localLiked ? localLikes - 1 : localLikes + 1);
     onLike?.();
+  };
+
+  const handleBookmark = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsBookmarked(!isBookmarked);
+    toast.success(isBookmarked ? "Removed from bookmarks" : "Added to bookmarks");
   };
 
   if (deleted) {
@@ -109,7 +120,7 @@ export function TweetCard({
           <div className="flex-1 min-w-0">
             {/* Header */}
             <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-1 min-w-0">
                 <span
                   className="font-bold hover:underline truncate cursor-pointer"
                   onClick={(e) => {
@@ -119,6 +130,9 @@ export function TweetCard({
                 >
                   {author}
                 </span>
+                {verified && (
+                  <BadgeCheck className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                )}
                 <span className="text-gray-500 text-sm truncate">
                   @{authorAddress.slice(0, 8)}
                 </span>
@@ -166,77 +180,8 @@ export function TweetCard({
             </div>
 
             {/* Media */}
-            {mediaUrls.length > 0 && (
-              <div
-                className={`mt-3 rounded-2xl overflow-hidden border border-gray-700 ${
-                  mediaUrls.length === 1
-                    ? "max-h-[500px]"
-                    : mediaUrls.length === 2
-                      ? "grid grid-cols-2 gap-0.5"
-                      : mediaUrls.length === 3
-                        ? "grid grid-cols-2 gap-0.5"
-                        : "grid grid-cols-2 gap-0.5"
-                }`}
-              >
-                {mediaUrls.slice(0, 4).map((url, i) => (
-                  <div
-                    key={i}
-                    className={`relative ${
-                      mediaUrls.length === 3 && i === 0 ? "row-span-2" : ""
-                    }`}
-                  >
-                    <img
-                      src={url}
-                      alt={`Media ${i + 1}`}
-                      className="w-full h-full object-cover hover:opacity-90 transition-opacity cursor-pointer"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Content */}
-            <div className="mt-1">
-              <p className="text-white whitespace-pre-wrap break-words text-[15px] leading-normal">
-                {content}
-              </p>
-            </div>
-
-            {/* Stats Preview */}
-            {(localLikes > 0 || commentCount > 0 || reshareCount > 0) && (
-              <div
-                className="flex items-center gap-3 mt-3 text-sm text-gray-500 cursor-pointer hover:underline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowStats(!showStats);
-                }}
-              >
-                {reshareCount > 0 && (
-                  <span>
-                    <span className="font-semibold text-white">
-                      {reshareCount}
-                    </span>{" "}
-                    Reshares
-                  </span>
-                )}
-                {commentCount > 0 && (
-                  <span>
-                    <span className="font-semibold text-white">
-                      {commentCount}
-                    </span>{" "}
-                    Comments
-                  </span>
-                )}
-                {localLikes > 0 && (
-                  <span>
-                    <span className="font-semibold text-white">
-                      {localLikes}
-                    </span>{" "}
-                    Likes
-                  </span>
-                )}
-              </div>
+            {mediaBlobIds && mediaBlobIds.length > 0 && (
+              <MediaDisplay blobIds={mediaBlobIds} />
             )}
 
             {/* Actions */}
@@ -248,9 +193,9 @@ export function TweetCard({
                   e.stopPropagation();
                   onComment?.();
                 }}
-                className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9"
+                className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9 transition-all duration-200"
               >
-                <MessageCircle className="h-[18px] w-[18px] group-hover:scale-110 transition-transform" />
+                <MessageCircle className="h-[18px] w-[18px] group-hover:scale-110 transition-transform duration-200" />
                 {commentCount > 0 && (
                   <span className="text-sm font-medium">{commentCount}</span>
                 )}
@@ -263,9 +208,9 @@ export function TweetCard({
                   e.stopPropagation();
                   onShare?.();
                 }}
-                className="group flex items-center gap-2 text-gray-500 hover:text-green-500 hover:bg-green-500/10 rounded-full px-3 h-9"
+                className="group flex items-center gap-2 text-gray-500 hover:text-green-500 hover:bg-green-500/10 rounded-full px-3 h-9 transition-all duration-200"
               >
-                <Repeat2 className="h-[18px] w-[18px] group-hover:scale-110 transition-transform" />
+                <Repeat2 className="h-[18px] w-[18px] group-hover:scale-110 group-hover:rotate-90 transition-all duration-200" />
                 {reshareCount > 0 && (
                   <span className="text-sm font-medium">{reshareCount}</span>
                 )}
@@ -275,32 +220,20 @@ export function TweetCard({
                 variant="ghost"
                 size="sm"
                 onClick={handleLike}
-                className={`group flex items-center gap-2 rounded-full px-3 h-9 transition-all ${
+                className={cn(
+                  "group flex items-center gap-2 rounded-full px-3 h-9 transition-all duration-200",
                   localLiked
-                    ? "text-pink-500 hover:text-pink-600 hover:bg-pink-500/10"
-                    : "text-gray-500 hover:text-pink-500 hover:bg-pink-500/10"
-                }`}
+                    ? "text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                    : "text-gray-500 hover:text-red-500 hover:bg-red-500/10"
+                )}
               >
                 <Heart
-                  className={`h-[18px] w-[18px] group-hover:scale-110 transition-transform ${
-                    localLiked ? "fill-current" : ""
-                  }`}
+                  className={cn(
+                    "h-[18px] w-[18px] transition-all duration-200",
+                    localLiked ? "fill-red-500 scale-110" : "group-hover:scale-110"
+                  )}
                 />
-                {localLikes > 0 && (
-                  <span className="text-sm font-medium">{localLikes}</span>
-                )}
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowStats(!showStats);
-                }}
-                className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9"
-              >
-                <BarChart3 className="h-[18px] w-[18px] group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-medium">{localLikes}</span>
               </Button>
 
               <Button
@@ -311,9 +244,28 @@ export function TweetCard({
                   navigator.clipboard.writeText(window.location.href);
                   toast.success("Link copied to clipboard!");
                 }}
-                className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9"
+                className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9 transition-all duration-200"
               >
-                <Share className="h-[18px] w-[18px] group-hover:scale-110 transition-transform" />
+                <Share className="h-[18px] w-[18px] group-hover:scale-110 transition-transform duration-200" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBookmark}
+                className={cn(
+                  "group flex items-center gap-2 rounded-full px-3 h-9 transition-all duration-200",
+                  isBookmarked
+                    ? "text-blue-500 hover:text-blue-600 hover:bg-blue-500/10"
+                    : "text-gray-500 hover:text-blue-500 hover:bg-blue-500/10"
+                )}
+              >
+                <Bookmark
+                  className={cn(
+                    "h-[18px] w-[18px] transition-all duration-200",
+                    isBookmarked ? "fill-blue-500" : "group-hover:scale-110"
+                  )}
+                />
               </Button>
             </div>
           </div>

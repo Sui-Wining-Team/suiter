@@ -4,10 +4,10 @@ import { Transaction } from "@mysten/sui/transactions";
 // Contract configuration
 export const SUITTER_CONFIG = {
   PACKAGE_ID:
-    "0x3410da65b01707ee3f26e519784902f07b19810b298309ea1c02ea7f2add5505",
+    "0xbb614228ec46b583aa1db115559fbe1051e0a9f7d900c549bcf3648d25e52ca4",
   MODULE_NAME: "suit",
   REGISTRY_ID:
-    "0xfc02e2746eed968f9a9278f2fb6fa4b3b283bf485299ce161d35f72ba29654c8",
+    "0xf16ff0e2a55969713511062df8c4372c2ad56ba21c0a6f65fcea65c49a537e19",
   PROFILE_REGISTRY_ID:
     "0x5528819c99c1a4d01312a0f9d4d7e9ba1ff5676007f6211b5942e45d68bc93cc",
   // Sui shared clock object
