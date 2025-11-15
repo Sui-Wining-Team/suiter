@@ -404,7 +404,7 @@ export function useLike() {
     setError(null);
 
     try {
-      const tx = SuitterTransactions.unlikePost(suitId);
+      const tx = SuitterTransactions.unlikeSuit(suitId);
 
       await new Promise((resolve, reject) => {
         signAndExecute(

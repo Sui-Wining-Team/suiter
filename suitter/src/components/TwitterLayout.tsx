@@ -76,19 +76,21 @@ export function TwitterLayout({
               <Button
                 key={item.id}
                 variant="ghost"
-                className={`w-full justify-start text-xl py-6 px-6 rounded-full hover:bg-gray-900 ${
+                className={`w-full justify-start text-xl py-6 px-6 rounded-full hover:bg-gray-900 transition-all duration-200 group ${
                   activeTab === item.id ? "font-bold" : "font-normal"
                 }`}
                 onClick={() => onTabChange?.(item.id)}
               >
-                <item.icon className="h-7 w-7 mr-5" />
+                <item.icon className={`h-7 w-7 mr-5 transition-transform duration-200 ${
+                  activeTab === item.id ? "" : "group-hover:scale-110"
+                }`} />
                 <span>{item.label}</span>
               </Button>
             ))}
           </nav>
 
           {/* Post Button */}
-          <Button className="w-full mt-4 bg-blue-500 hover:bg-blue-600 rounded-full py-6 text-lg font-bold">
+          <Button className="w-full mt-4 bg-blue-500 hover:bg-blue-600 rounded-full py-6 text-lg font-bold shadow-lg hover:shadow-blue-500/50 transition-all duration-200 hover:scale-105">
             Post
           </Button>
         </div>

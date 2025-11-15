@@ -5,6 +5,7 @@ import { useReadSuits } from "@/hooks/useReadSuits";
 import { ComposeTweet } from "./ComposeTweet";
 import { TweetCard } from "./TweetCard";
 import { CommentModal } from "./CommentModal";
+import { TweetSkeletonList } from "./TweetSkeleton";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, RefreshCw, ArrowUp } from "lucide-react";
 import { toast } from "sonner";
@@ -39,12 +40,20 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
       if (suits.length > 0) {
         console.log("🔍 First post structure:", suits[0]);
       }
+      
+      // Check for new posts
+      if (previousSuitsCount > 0 && suits.length > previousSuitsCount) {
+        setHasNewPosts(true);
+      }
+      setPreviousSuitsCount(suits.length);
     }
   }, [suits]);
 
   const [likeStatuses, setLikeStatuses] = useState<Record<string, any>>({});
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasNewPosts, setHasNewPosts] = useState(false);
+  const [previousSuitsCount, setPreviousSuitsCount] = useState(0);
   const feedRef = useRef<HTMLDivElement>(null);
 
   // Show scroll to top button when scrolled down
@@ -62,6 +71,7 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
+    setHasNewPosts(false);
     await refetch();
     setIsRefreshing(false);
     toast.success("Feed refreshed");
@@ -224,21 +234,23 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
 
       <Separator className="bg-gray-800" />
 
+      {/* New Posts Banner */}
+      {hasNewPosts && !suitsLoading && (
+        <div className="sticky top-[73px] z-10 border-b border-gray-800">
+          <button
+            onClick={handleRefresh}
+            className="w-full py-3 bg-blue-500/10 hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-2 text-blue-500 font-medium"
+          >
+            <ArrowUp className="h-4 w-4" />
+            <span>Show new posts</span>
+          </button>
+        </div>
+      )}
+
       {/* Loading State */}
       {suitsLoading && (
-        <div className="space-y-4 p-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="border-b border-gray-800 pb-4">
-              <div className="flex gap-3 animate-pulse">
-                <div className="w-12 h-12 bg-gray-800 rounded-full" />
-                <div className="flex-1 space-y-3">
-                  <div className="h-4 bg-gray-800 rounded w-1/4" />
-                  <div className="h-4 bg-gray-800 rounded w-3/4" />
-                  <div className="h-4 bg-gray-800 rounded w-1/2" />
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="divide-y divide-gray-800">
+          <TweetSkeletonList count={5} />
         </div>
       )}
 
@@ -247,20 +259,38 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
         <div className="p-4 text-center text-red-500">Failed to load posts</div>
       )}
 
-      {/* Empty State */}
-      {!suitsLoading && (!suits || suits.length === 0) && (
-        <div className="flex flex-col items-center justify-center py-16 px-4">
-          <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">
-            <svg viewBox="0 0 24 24" className="h-8 w-8 fill-gray-600">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
+            {/* Empty State */}
+      {!suitsLoading && suits && suits.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 px-8">
+          <div className="text-center space-y-6 max-w-md">
+            <div className="relative">
+              <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full"></div>
+              <div className="relative text-7xl">✨</div>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-3xl font-bold text-white">Welcome to Suitter</h3>
+              <p className="text-gray-400 text-lg">
+                This is where great ideas are born.
+              </p>
+            </div>
+            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 space-y-3 text-left">
+              <p className="text-gray-300 font-medium">Get started:</p>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-500 mt-0.5">•</span>
+                  <span>Share your thoughts in the composer above</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-500 mt-0.5">•</span>
+                  <span>Follow interesting people to see their posts</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-500 mt-0.5">•</span>
+                  <span>Like and comment to join the conversation</span>
+                </li>
+              </ul>
+            </div>
           </div>
-          <h3 className="text-xl font-bold mb-2">No posts yet</h3>
-          <p className="text-gray-500 text-center max-w-sm">
-            {currentAccount
-              ? "Be the first to share your thoughts with the world!"
-              : "Connect your wallet to see and create posts"}
-          </p>
         </div>
       )}
 

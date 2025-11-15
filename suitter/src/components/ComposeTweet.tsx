@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { MediaUpload } from "./MediaUpload";
 import { toast } from "sonner";
+import { Image, Smile, BarChart3, Calendar, MapPin, Sparkles } from "lucide-react";
 
 interface ComposeTweetProps {
   onPost: (content: string, mediaBlobIds: string[]) => void;
@@ -101,21 +102,50 @@ export function ComposeTweet({
             className="min-h-[120px] text-xl bg-transparent border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500"
           />
 
-          {/* Media Upload */}
-          <div className="mt-3">
-            <MediaUpload onMediaChange={handleMediaChange} maxFiles={4} />
-          </div>
-
           {/* Actions */}
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-800">
-            <div className="text-sm text-gray-500">
-              {mediaBlobIds.length > 0 && (
-                <span>{mediaBlobIds.length} media file(s) attached</span>
-              )}
+            <div className="flex items-center gap-1">
+              <MediaUpload onMediaChange={handleMediaChange} maxFiles={4} />
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-blue-500 hover:bg-blue-500/10 rounded-full p-2 h-9 w-9 transition-all duration-200"
+                onClick={() => toast.info("GIF picker coming soon!")}
+              >
+                <Image className="h-5 w-5" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-blue-500 hover:bg-blue-500/10 rounded-full p-2 h-9 w-9 transition-all duration-200"
+                onClick={() => toast.info("Poll feature coming soon!")}
+              >
+                <BarChart3 className="h-5 w-5" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-blue-500 hover:bg-blue-500/10 rounded-full p-2 h-9 w-9 transition-all duration-200"
+                onClick={() => toast.info("Emoji picker coming soon!")}
+              >
+                <Smile className="h-5 w-5" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-blue-500 hover:bg-blue-500/10 rounded-full p-2 h-9 w-9 transition-all duration-200"
+                onClick={() => toast.info("Schedule post coming soon!")}
+              >
+                <Calendar className="h-5 w-5" />
+              </Button>
             </div>
 
             <div className="flex items-center gap-3">
-              {charCount > 0 && (
+              {charCount >= maxChars * 0.8 && (
                 <div className="flex items-center gap-2">
                   <div className="relative w-8 h-8">
                     <svg className="w-full h-full transform -rotate-90">
@@ -141,20 +171,18 @@ export function ComposeTweet({
                       />
                     </svg>
                   </div>
-                  {charCount > maxChars * 0.8 && (
-                    <span className={`text-sm font-medium ${progressColor}`}>
-                      {charCount > maxChars
-                        ? `-${charCount - maxChars}`
-                        : maxChars - charCount}
-                    </span>
-                  )}
+                  <span className={`text-sm font-medium ${progressColor}`}>
+                    {charCount > maxChars
+                      ? `-${charCount - maxChars}`
+                      : maxChars - charCount}
+                  </span>
                 </div>
               )}
 
               <Button
                 onClick={handlePost}
                 disabled={isPostDisabled}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full px-6 disabled:opacity-50"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full px-6 disabled:opacity-50 shadow-lg hover:shadow-blue-500/50 transition-all duration-200"
               >
                 Post
               </Button>

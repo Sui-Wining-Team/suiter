@@ -6,11 +6,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 const trendingTopics = [
-  { topic: "#SuiBlockchain", posts: "12.5K", change: "+45%" },
-  { topic: "#Web3", posts: "8.2K", change: "+32%" },
-  { topic: "#Suitter", posts: "5.1K", change: "+78%" },
-  { topic: "#NFTs", posts: "3.7K", change: "+12%" },
-  { topic: "#DeFi", posts: "2.9K", change: "+28%" },
+  { topic: "#SuiBlockchain", posts: "12.5K", change: "+45%", category: "Technology" },
+  { topic: "#Web3", posts: "8.2K", change: "+32%", category: "Crypto" },
+  { topic: "#Suitter", posts: "5.1K", change: "+78%", category: "Social" },
+  { topic: "#NFTs", posts: "3.7K", change: "+12%", category: "Art" },
+  { topic: "#DeFi", posts: "2.9K", change: "+28%", category: "Finance" },
 ];
 
 const whoToFollow = [
@@ -107,10 +107,10 @@ export function TrendingSidebar() {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm text-gray-500">Trending in Web3</p>
+                    <p className="text-sm text-gray-500">Trending in {trend.category}</p>
                     <Badge
                       variant="outline"
-                      className="text-xs border-green-500 text-green-500"
+                      className="text-xs border-green-500/50 text-green-500 bg-green-500/10"
                     >
                       {trend.change}
                     </Badge>

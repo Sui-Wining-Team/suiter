@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +9,8 @@ import {
   MoreHorizontal,
   Trash2,
   BarChart3,
+  Bookmark,
+  BadgeCheck,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -17,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MediaDisplay } from "./MediaDisplay";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface TweetCardProps {
   author: string;
@@ -30,6 +34,7 @@ interface TweetCardProps {
   reshareCount?: number;
   isOwner?: boolean;
   deleted?: boolean;
+  verified?: boolean;
   onClick?: () => void;
   mediaUrls?: string[];
   onLike?: () => void;
@@ -51,6 +56,7 @@ export function TweetCard({
   reshareCount = 0,
   isOwner = false,
   deleted = false,
+  verified = false,
   onClick,
   mediaUrls = [],
   onLike,
@@ -59,9 +65,21 @@ export function TweetCard({
   onShare,
   onProfileClick,
 }: TweetCardProps) {
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [localLiked, setLocalLiked] = useState(isLiked);
+  const [localLikes, setLocalLikes] = useState(likes);
+
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setLocalLiked(!localLiked);
+    setLocalLikes(localLiked ? localLikes - 1 : localLikes + 1);
     onLike?.();
+  };
+
+  const handleBookmark = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsBookmarked(!isBookmarked);
+    toast.success(isBookmarked ? "Removed from bookmarks" : "Added to bookmarks");
   };
 
   if (deleted) {
@@ -102,7 +120,7 @@ export function TweetCard({
           <div className="flex-1 min-w-0">
             {/* Header */}
             <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-1 min-w-0">
                 <span
                   className="font-bold hover:underline truncate cursor-pointer"
                   onClick={(e) => {
@@ -112,6 +130,9 @@ export function TweetCard({
                 >
                   {author}
                 </span>
+                {verified && (
+                  <BadgeCheck className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                )}
                 <span className="text-gray-500 text-sm truncate">
                   @{authorAddress.slice(0, 8)}
                 </span>
@@ -172,9 +193,9 @@ export function TweetCard({
                   e.stopPropagation();
                   onComment?.();
                 }}
-                className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9"
+                className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9 transition-all duration-200"
               >
-                <MessageCircle className="h-[18px] w-[18px] group-hover:scale-110 transition-transform" />
+                <MessageCircle className="h-[18px] w-[18px] group-hover:scale-110 transition-transform duration-200" />
                 {commentCount > 0 && (
                   <span className="text-sm font-medium">{commentCount}</span>
                 )}
@@ -187,9 +208,9 @@ export function TweetCard({
                   e.stopPropagation();
                   onShare?.();
                 }}
-                className="group flex items-center gap-2 text-gray-500 hover:text-green-500 hover:bg-green-500/10 rounded-full px-3 h-9"
+                className="group flex items-center gap-2 text-gray-500 hover:text-green-500 hover:bg-green-500/10 rounded-full px-3 h-9 transition-all duration-200"
               >
-                <Repeat2 className="h-[18px] w-[18px] group-hover:scale-110 transition-transform" />
+                <Repeat2 className="h-[18px] w-[18px] group-hover:scale-110 group-hover:rotate-90 transition-all duration-200" />
                 {reshareCount > 0 && (
                   <span className="text-sm font-medium">{reshareCount}</span>
                 )}
@@ -199,18 +220,20 @@ export function TweetCard({
                 variant="ghost"
                 size="sm"
                 onClick={handleLike}
-                className={`group flex items-center gap-2 rounded-full px-3 h-9 transition-colors ${
-                  isLiked
+                className={cn(
+                  "group flex items-center gap-2 rounded-full px-3 h-9 transition-all duration-200",
+                  localLiked
                     ? "text-red-500 hover:text-red-600 hover:bg-red-500/10"
                     : "text-gray-500 hover:text-red-500 hover:bg-red-500/10"
-                }`}
+                )}
               >
                 <Heart
-                  className={`h-[18px] w-[18px] transition-all group-hover:scale-110 ${
-                    isLiked ? "fill-red-500" : ""
-                  }`}
+                  className={cn(
+                    "h-[18px] w-[18px] transition-all duration-200",
+                    localLiked ? "fill-red-500 scale-110" : "group-hover:scale-110"
+                  )}
                 />
-                <span className="text-sm font-medium">{likes}</span>
+                <span className="text-sm font-medium">{localLikes}</span>
               </Button>
 
               <Button
@@ -221,9 +244,28 @@ export function TweetCard({
                   navigator.clipboard.writeText(window.location.href);
                   toast.success("Link copied to clipboard!");
                 }}
-                className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9"
+                className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9 transition-all duration-200"
               >
-                <Share className="h-[18px] w-[18px] group-hover:scale-110 transition-transform" />
+                <Share className="h-[18px] w-[18px] group-hover:scale-110 transition-transform duration-200" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBookmark}
+                className={cn(
+                  "group flex items-center gap-2 rounded-full px-3 h-9 transition-all duration-200",
+                  isBookmarked
+                    ? "text-blue-500 hover:text-blue-600 hover:bg-blue-500/10"
+                    : "text-gray-500 hover:text-blue-500 hover:bg-blue-500/10"
+                )}
+              >
+                <Bookmark
+                  className={cn(
+                    "h-[18px] w-[18px] transition-all duration-200",
+                    isBookmarked ? "fill-blue-500" : "group-hover:scale-110"
+                  )}
+                />
               </Button>
             </div>
           </div>
