@@ -46,19 +46,22 @@ function App() {
   return (
     <div className="min-h-screen bg-black text-white">
       {!isConnected && (
-        <div className="border-b border-gray-800 bg-black/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="border-b border-gray-800 bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <svg viewBox="0 0 24 24" className="h-8 w-8 fill-white">
+            <div className="flex items-center gap-3">
+              <svg viewBox="0 0 24 24" className="h-8 w-8 fill-blue-500">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
-              <span className="text-sm text-gray-400">
-                Viewing only - Connect wallet to post
-              </span>
+              <div>
+                <p className="font-semibold text-sm">Welcome to Suitter</p>
+                <p className="text-xs text-gray-400">
+                  Connect your wallet to start posting
+                </p>
+              </div>
             </div>
             <Button
               onClick={() => setIsConnectModalOpen(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full px-6"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold rounded-full px-6 shadow-lg hover:shadow-xl transition-all"
             >
               Connect Wallet
             </Button>

@@ -1,9 +1,17 @@
 import { ReactNode } from "react";
-import { Home, Search, Bell, Mail, User, MoreHorizontal } from "lucide-react";
+import { Home, Search, Bell, Mail, User, MoreHorizontal, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
 import { TrendingSidebar } from "./TrendingSidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface TwitterLayoutProps {
   children: ReactNode;
@@ -17,6 +25,21 @@ export function TwitterLayout({
   onTabChange,
 }: TwitterLayoutProps) {
   const currentAccount = useCurrentAccount();
+  const { mutate: disconnect } = useDisconnectWallet();
+
+  const handleLogout = () => {
+    // Clear zkLogin data
+    localStorage.removeItem('zklogin_token');
+    localStorage.removeItem('zklogin_address');
+    
+    // Disconnect wallet if connected
+    if (currentAccount) {
+      disconnect();
+    }
+    
+    toast.success('Logged out successfully');
+    window.location.reload();
+  };
 
   const navItems = [
     { id: "home", icon: Home, label: "Home" },
@@ -64,29 +87,56 @@ export function TwitterLayout({
         {/* User Profile at Bottom */}
         {currentAccount && (
           <div className="p-3 mb-4">
-            <Button
-              variant="ghost"
-              className="w-full justify-between p-3 rounded-full hover:bg-gray-900"
-            >
-              <div className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarImage
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentAccount.address}`}
-                  />
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col items-start">
-                  <span className="font-bold text-sm">
-                    {currentAccount.address.slice(0, 6)}...
-                    {currentAccount.address.slice(-4)}
-                  </span>
-                  <span className="text-gray-500 text-sm">
-                    @{currentAccount.address.slice(0, 8)}
-                  </span>
-                </div>
-              </div>
-              <MoreHorizontal className="h-5 w-5" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-between p-3 rounded-full hover:bg-gray-900"
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage
+                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentAccount.address}`}
+                      />
+                      <AvatarFallback>U</AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col items-start">
+                      <span className="font-bold text-sm">
+                        {currentAccount.address.slice(0, 6)}...
+                        {currentAccount.address.slice(-4)}
+                      </span>
+                      <span className="text-gray-500 text-sm">
+                        @{currentAccount.address.slice(0, 8)}
+                      </span>
+                    </div>
+                  </div>
+                  <MoreHorizontal className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-black border-gray-800" align="end">
+                <DropdownMenuItem
+                  onClick={() => onTabChange?.('profile')}
+                  className="cursor-pointer hover:bg-gray-900 focus:bg-gray-900"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  View Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer hover:bg-gray-900 focus:bg-gray-900"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-gray-800" />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer text-red-500 hover:bg-gray-900 focus:bg-gray-900 focus:text-red-500"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </aside>

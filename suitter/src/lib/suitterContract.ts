@@ -163,7 +163,7 @@ export class SuitterTransactions {
   static createComment(
     suitId: string,
     text: string,
-    mediaBlobIds: string[] = []
+    mediaBlobIds: string[] = [],
   ): Transaction {
     const tx = new Transaction();
 
@@ -220,7 +220,10 @@ export class SuitterTransactions {
   /**
    * Reshare a suit
    */
-  static resharePost(originalSuitId: string, comment: string = ""): Transaction {
+  static resharePost(
+    originalSuitId: string,
+    comment: string = "",
+  ): Transaction {
     const tx = new Transaction();
 
     tx.moveCall({

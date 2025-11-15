@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MediaDisplay } from "./MediaDisplay";
+import { toast } from "sonner";
 
 interface TweetCardProps {
   author: string;
@@ -89,7 +90,7 @@ export function TweetCard({
         <div className="flex gap-3">
           {/* Avatar */}
           <div className="flex-shrink-0">
-            <Avatar 
+            <Avatar
               className="h-12 w-12 cursor-pointer hover:opacity-90 transition-opacity"
               onClick={(e) => {
                 e.stopPropagation();
@@ -99,7 +100,9 @@ export function TweetCard({
               <AvatarImage
                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${authorAddress}`}
               />
-              <AvatarFallback className="bg-blue-600">{author[0]}</AvatarFallback>
+              <AvatarFallback className="bg-blue-600">
+                {author[0]}
+              </AvatarFallback>
             </Avatar>
           </div>
 
@@ -107,7 +110,7 @@ export function TweetCard({
             {/* Header */}
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
-                <span 
+                <span
                   className="font-bold hover:underline truncate cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -164,21 +167,26 @@ export function TweetCard({
 
             {/* Media */}
             {mediaUrls.length > 0 && (
-              <div className={`mt-3 rounded-2xl overflow-hidden border border-gray-700 ${
-                mediaUrls.length === 1 ? 'max-h-[500px]' : 
-                mediaUrls.length === 2 ? 'grid grid-cols-2 gap-0.5' :
-                mediaUrls.length === 3 ? 'grid grid-cols-2 gap-0.5' :
-                'grid grid-cols-2 gap-0.5'
-              }`}>
+              <div
+                className={`mt-3 rounded-2xl overflow-hidden border border-gray-700 ${
+                  mediaUrls.length === 1
+                    ? "max-h-[500px]"
+                    : mediaUrls.length === 2
+                      ? "grid grid-cols-2 gap-0.5"
+                      : mediaUrls.length === 3
+                        ? "grid grid-cols-2 gap-0.5"
+                        : "grid grid-cols-2 gap-0.5"
+                }`}
+              >
                 {mediaUrls.slice(0, 4).map((url, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className={`relative ${
-                      mediaUrls.length === 3 && i === 0 ? 'row-span-2' : ''
+                      mediaUrls.length === 3 && i === 0 ? "row-span-2" : ""
                     }`}
                   >
-                    <img 
-                      src={url} 
+                    <img
+                      src={url}
                       alt={`Media ${i + 1}`}
                       className="w-full h-full object-cover hover:opacity-90 transition-opacity cursor-pointer"
                       onClick={(e) => e.stopPropagation()}
@@ -197,7 +205,7 @@ export function TweetCard({
 
             {/* Stats Preview */}
             {(localLikes > 0 || commentCount > 0 || reshareCount > 0) && (
-              <div 
+              <div
                 className="flex items-center gap-3 mt-3 text-sm text-gray-500 cursor-pointer hover:underline"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -206,17 +214,26 @@ export function TweetCard({
               >
                 {reshareCount > 0 && (
                   <span>
-                    <span className="font-semibold text-white">{reshareCount}</span> Reshares
+                    <span className="font-semibold text-white">
+                      {reshareCount}
+                    </span>{" "}
+                    Reshares
                   </span>
                 )}
                 {commentCount > 0 && (
                   <span>
-                    <span className="font-semibold text-white">{commentCount}</span> Comments
+                    <span className="font-semibold text-white">
+                      {commentCount}
+                    </span>{" "}
+                    Comments
                   </span>
                 )}
                 {localLikes > 0 && (
                   <span>
-                    <span className="font-semibold text-white">{localLikes}</span> Likes
+                    <span className="font-semibold text-white">
+                      {localLikes}
+                    </span>{" "}
+                    Likes
                   </span>
                 )}
               </div>
@@ -292,6 +309,7 @@ export function TweetCard({
                 onClick={(e) => {
                   e.stopPropagation();
                   navigator.clipboard.writeText(window.location.href);
+                  toast.success('Link copied to clipboard!');
                 }}
                 className="group flex items-center gap-2 text-gray-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-full px-3 h-9"
               >

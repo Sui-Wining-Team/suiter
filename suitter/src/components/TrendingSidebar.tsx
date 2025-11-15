@@ -108,7 +108,10 @@ export function TrendingSidebar() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="text-sm text-gray-500">Trending in Web3</p>
-                    <Badge variant="outline" className="text-xs border-green-500 text-green-500">
+                    <Badge
+                      variant="outline"
+                      className="text-xs border-green-500 text-green-500"
+                    >
                       {trend.change}
                     </Badge>
                   </div>
@@ -168,19 +171,27 @@ export function TrendingSidebar() {
       {/* Footer Links */}
       <div className="px-4 py-2">
         <div className="flex flex-wrap gap-2 text-xs text-gray-500">
-          <a href="#" className="hover:underline">Terms of Service</a>
+          <a href="#" className="hover:underline">
+            Terms of Service
+          </a>
           <span>·</span>
-          <a href="#" className="hover:underline">Privacy Policy</a>
+          <a href="#" className="hover:underline">
+            Privacy Policy
+          </a>
           <span>·</span>
-          <a href="#" className="hover:underline">Cookie Policy</a>
+          <a href="#" className="hover:underline">
+            Cookie Policy
+          </a>
           <span>·</span>
-          <a href="#" className="hover:underline">Accessibility</a>
+          <a href="#" className="hover:underline">
+            Accessibility
+          </a>
           <span>·</span>
-          <a href="#" className="hover:underline">Ads info</a>
+          <a href="#" className="hover:underline">
+            Ads info
+          </a>
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          © 2024 Suitter on Sui
-        </p>
+        <p className="text-xs text-gray-500 mt-2">© 2024 Suitter on Sui</p>
       </div>
     </div>
   );

@@ -58,6 +58,13 @@ export function ComposeTweet({
       : charCount > maxChars * 0.9
         ? "text-yellow-500"
         : "text-blue-500";
+  
+  const strokeColor =
+    charCount > maxChars
+      ? "stroke-red-500"
+      : charCount > maxChars * 0.9
+        ? "stroke-yellow-500"
+        : "stroke-blue-500";
 
   const isPostDisabled =
     !currentAccount || disabled || !content.trim() || charCount > maxChars;
@@ -96,10 +103,7 @@ export function ComposeTweet({
 
           {/* Media Upload */}
           <div className="mt-3">
-            <MediaUpload 
-              onMediaChange={handleMediaChange}
-              maxFiles={4}
-            />
+            <MediaUpload onMediaChange={handleMediaChange} maxFiles={4} />
           </div>
 
           {/* Actions */}
@@ -113,31 +117,33 @@ export function ComposeTweet({
             <div className="flex items-center gap-3">
               {charCount > 0 && (
                 <div className="flex items-center gap-2">
-                  <svg className="w-8 h-8 transform -rotate-90">
-                    <circle
-                      cx="16"
-                      cy="16"
-                      r="14"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      fill="none"
-                      className="text-gray-700"
-                    />
-                    <circle
-                      cx="16"
-                      cy="16"
-                      r="14"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 14}`}
-                      strokeDashoffset={`${2 * Math.PI * 14 * (1 - progress / 100)}`}
-                      className={progressColor}
-                    />
-                  </svg>
-                  {charCount > maxChars * 0.9 && (
-                    <span className={`text-sm ${progressColor}`}>
-                      {maxChars - charCount}
+                  <div className="relative w-8 h-8">
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle
+                        cx="16"
+                        cy="16"
+                        r="12"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="none"
+                        className="text-gray-700"
+                      />
+                      <circle
+                        cx="16"
+                        cy="16"
+                        r="12"
+                        strokeWidth="3"
+                        fill="none"
+                        strokeDasharray={`${2 * Math.PI * 12}`}
+                        strokeDashoffset={`${2 * Math.PI * 12 * (1 - progress / 100)}`}
+                        className={strokeColor}
+                        style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+                      />
+                    </svg>
+                  </div>
+                  {charCount > maxChars * 0.8 && (
+                    <span className={`text-sm font-medium ${progressColor}`}>
+                      {charCount > maxChars ? `-${charCount - maxChars}` : maxChars - charCount}
                     </span>
                   )}
                 </div>
