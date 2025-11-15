@@ -28,42 +28,79 @@ export async function uploadToWalrus(
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
 
-    // Upload to Walrus using fetch API directly
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await fetch(`${WALRUS_CONFIG.PUBLISHER_URL}/v1/store`, {
-      method: "PUT",
-      body: uint8Array,
-      headers: {
-        "Content-Type": "application/octet-stream",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Upload failed: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-
-    // Emit progress update
+    // Emit initial progress
     if (onProgress) {
       onProgress({
-        loaded: file.size,
+        loaded: 0,
         total: file.size,
-        percentage: 100,
+        percentage: 0,
       });
     }
 
-    return {
-      blobId:
+    // Upload to Walrus using fetch API with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
+    try {
+      const response = await fetch(
+        `${WALRUS_CONFIG.PUBLISHER_URL}/v1/store?epochs=${WALRUS_CONFIG.EPOCHS}`,
+        {
+          method: "PUT",
+          body: uint8Array,
+          headers: {
+            "Content-Type": "application/octet-stream",
+          },
+          signal: controller.signal,
+        },
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response
+          .text()
+          .catch(() => response.statusText);
+        throw new Error(`Upload failed: ${errorText}`);
+      }
+
+      const result = await response.json();
+
+      // Emit progress update
+      if (onProgress) {
+        onProgress({
+          loaded: file.size,
+          total: file.size,
+          percentage: 100,
+        });
+      }
+
+      // Extract blob ID from various response formats
+      const blobId =
         result.newlyCreated?.blobObject?.blobId ||
         result.alreadyCertified?.blobId ||
-        "",
-      suiRef:
-        result.newlyCreated?.blobObject?.id || result.alreadyCertified?.blobId,
-      cost: result.cost?.toString(),
-    };
+        result.blobId ||
+        "";
+
+      if (!blobId) {
+        console.error("Walrus response:", result);
+        throw new Error("No blob ID in response");
+      }
+
+      return {
+        blobId,
+        suiRef:
+          result.newlyCreated?.blobObject?.id ||
+          result.alreadyCertified?.blobId ||
+          result.suiRef,
+        cost: result.cost?.toString(),
+      };
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        throw new Error("Upload timed out after 60 seconds");
+      }
+      throw fetchError;
+    }
   } catch (error) {
     console.error("Error uploading to Walrus:", error);
     throw new Error(
