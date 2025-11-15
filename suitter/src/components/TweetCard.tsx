@@ -159,77 +159,8 @@ export function TweetCard({
             </div>
 
             {/* Media */}
-            {mediaUrls.length > 0 && (
-              <div
-                className={`mt-3 rounded-2xl overflow-hidden border border-gray-700 ${
-                  mediaUrls.length === 1
-                    ? "max-h-[500px]"
-                    : mediaUrls.length === 2
-                      ? "grid grid-cols-2 gap-0.5"
-                      : mediaUrls.length === 3
-                        ? "grid grid-cols-2 gap-0.5"
-                        : "grid grid-cols-2 gap-0.5"
-                }`}
-              >
-                {mediaUrls.slice(0, 4).map((url, i) => (
-                  <div
-                    key={i}
-                    className={`relative ${
-                      mediaUrls.length === 3 && i === 0 ? "row-span-2" : ""
-                    }`}
-                  >
-                    <img
-                      src={url}
-                      alt={`Media ${i + 1}`}
-                      className="w-full h-full object-cover hover:opacity-90 transition-opacity cursor-pointer"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Content */}
-            <div className="mt-1">
-              <p className="text-white whitespace-pre-wrap break-words text-[15px] leading-normal">
-                {content}
-              </p>
-            </div>
-
-            {/* Stats Preview */}
-            {(localLikes > 0 || commentCount > 0 || reshareCount > 0) && (
-              <div
-                className="flex items-center gap-3 mt-3 text-sm text-gray-500 cursor-pointer hover:underline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowStats(!showStats);
-                }}
-              >
-                {reshareCount > 0 && (
-                  <span>
-                    <span className="font-semibold text-white">
-                      {reshareCount}
-                    </span>{" "}
-                    Reshares
-                  </span>
-                )}
-                {commentCount > 0 && (
-                  <span>
-                    <span className="font-semibold text-white">
-                      {commentCount}
-                    </span>{" "}
-                    Comments
-                  </span>
-                )}
-                {localLikes > 0 && (
-                  <span>
-                    <span className="font-semibold text-white">
-                      {localLikes}
-                    </span>{" "}
-                    Likes
-                  </span>
-                )}
-              </div>
+            {mediaBlobIds && mediaBlobIds.length > 0 && (
+              <MediaDisplay blobIds={mediaBlobIds} />
             )}
 
             {/* Actions */}
@@ -264,23 +195,23 @@ export function TweetCard({
                 )}
               </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLike}
-              className={`flex items-center gap-2 rounded-full px-3 transition-colors ${
-                isLiked
-                  ? "text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                  : "text-gray-500 hover:text-red-500 hover:bg-red-500/10"
-              }`}
-            >
-              <Heart
-                className={`h-4 w-4 transition-all ${
-                  isLiked ? "fill-red-500" : ""
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLike}
+                className={`group flex items-center gap-2 rounded-full px-3 h-9 transition-colors ${
+                  isLiked
+                    ? "text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                    : "text-gray-500 hover:text-red-500 hover:bg-red-500/10"
                 }`}
-              />
-              <span className="text-sm">{likes}</span>
-            </Button>
+              >
+                <Heart
+                  className={`h-[18px] w-[18px] transition-all group-hover:scale-110 ${
+                    isLiked ? "fill-red-500" : ""
+                  }`}
+                />
+                <span className="text-sm font-medium">{likes}</span>
+              </Button>
 
               <Button
                 variant="ghost"

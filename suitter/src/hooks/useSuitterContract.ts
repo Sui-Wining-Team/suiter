@@ -395,7 +395,6 @@ export function useLike() {
   };
 
   const unlikePost = async (suitId: string) => {
-  const unlikePost = async (suitId: string) => {
     if (!currentAccount) {
       setError("No wallet connected");
       return;
@@ -440,9 +439,17 @@ export function useLike() {
     if (!currentAccount) return { isLiked: false, totalLikes: 0 };
 
     try {
-      // For now, we'll check the suit object directly
-      // In future, we might query events or use a different approach
-      return { isLiked: false, totalLikes: 0 };
+      const userLikeStatus = await SuitterQueries.hasUserLikedPost(
+        currentAccount.address,
+        suitId,
+      );
+      const allLikes = await SuitterQueries.getLikesByPost(suitId);
+
+      return {
+        isLiked: userLikeStatus.liked,
+        likeObjectId: userLikeStatus.likeId,
+        totalLikes: allLikes.length,
+      };
     } catch (err: any) {
       console.error("Error checking like status:", err);
       return { isLiked: false, totalLikes: 0 };
