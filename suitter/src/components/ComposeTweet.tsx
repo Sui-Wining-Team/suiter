@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import { MediaUploader } from "./MediaUploader";
+import { MediaUpload } from "./MediaUpload";
 import { toast } from "sonner";
 
 interface ComposeTweetProps {
@@ -29,6 +29,12 @@ export function ComposeTweet({
     const text = e.target.value;
     setContent(text);
     setCharCount(text.length);
+  };
+
+  const handleMediaChange = (files: File[]) => {
+    // TODO: Upload files to Walrus and get blob IDs
+    // For now, just store empty array until Walrus integration
+    setMediaBlobIds([]);
   };
 
   const handlePost = () => {
@@ -88,14 +94,15 @@ export function ComposeTweet({
             className="min-h-[120px] text-xl bg-transparent border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-500"
           />
 
-          {/* Media Uploader */}
-          <MediaUploader
-            onMediaChange={setMediaBlobIds}
-            maxFiles={4}
-            disabled={!currentAccount || disabled}
-          />
+          {/* Media Upload */}
+          <div className="mt-3">
+            <MediaUpload 
+              onMediaChange={handleMediaChange}
+              maxFiles={4}
+            />
+          </div>
 
-          {/* Post Actions */}
+          {/* Actions */}
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-800">
             <div className="text-sm text-gray-500">
               {mediaBlobIds.length > 0 && (

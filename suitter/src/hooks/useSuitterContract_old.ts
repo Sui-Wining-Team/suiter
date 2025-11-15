@@ -18,9 +18,8 @@ export function useProfile() {
 
   const createProfile = async (
     username: string,
-    name: string,
-    bio: string,
-    avatarBlobId: string,
+    bioCid: string,
+    avatarCid: string,
   ) => {
     if (!currentAccount) {
       setError("No wallet connected");
@@ -31,12 +30,7 @@ export function useProfile() {
     setError(null);
 
     try {
-      const tx = SuitterTransactions.createProfile(
-        username,
-        name,
-        bio,
-        avatarBlobId,
-      );
+      const tx = SuitterTransactions.createProfile(username, bioCid, avatarCid);
 
       await new Promise((resolve, reject) => {
         signAndExecute(
@@ -55,7 +49,6 @@ export function useProfile() {
       });
     } catch (err: any) {
       setError(err.message || "Failed to create profile");
-      throw err;
     } finally {
       setLoading(false);
     }
@@ -76,8 +69,28 @@ export function useProfile() {
     setError(null);
 
     try {
-      // Profile update not implemented in current contract
-      console.log("Profile update not available in current contract");
+      const tx = SuitterTransactions.updateProfile(
+        profileId,
+        username,
+        bioCid,
+        avatarCid,
+      );
+
+      await new Promise((resolve, reject) => {
+        signAndExecute(
+          { transaction: tx },
+          {
+            onSuccess: (result) => {
+              console.log("Profile updated:", result);
+              resolve(result);
+            },
+            onError: (err) => {
+              console.error("Error updating profile:", err);
+              reject(err);
+            },
+          },
+        );
+      });
     } catch (err: any) {
       setError(err.message || "Failed to update profile");
     } finally {
@@ -107,7 +120,7 @@ export function useProfile() {
 }
 
 /**
- * Hook for creating and managing posts (suits)
+ * Hook for creating and managing posts
  */
 export function usePost() {
   const [loading, setLoading] = useState(false);
@@ -115,7 +128,7 @@ export function usePost() {
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const currentAccount = useCurrentAccount();
 
-  const createPost = async (text: string, mediaBlobIds: string[] = []) => {
+  const createPost = async (text: string) => {
     if (!currentAccount) {
       setError("No wallet connected");
       return;
@@ -125,7 +138,7 @@ export function usePost() {
     setError(null);
 
     try {
-      const tx = SuitterTransactions.createPost(text, mediaBlobIds);
+      const tx = SuitterTransactions.createPost(text);
 
       await new Promise((resolve, reject) => {
         signAndExecute(
@@ -144,13 +157,12 @@ export function usePost() {
       });
     } catch (err: any) {
       setError(err.message || "Failed to create post");
-      throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const updatePost = async (suitId: string, newText: string) => {
+  const editPost = async (postId: string, newMetadataCid: string) => {
     if (!currentAccount) {
       setError("No wallet connected");
       return;
@@ -160,31 +172,31 @@ export function usePost() {
     setError(null);
 
     try {
-      const txb = SuitterTransactions.updatePost(suitId, newText);
+      const tx = SuitterTransactions.editPost(postId, newMetadataCid);
 
-      signAndExecute(
-        {
-          transaction: txb,
-        },
-        {
-          onSuccess: (result) => {
-            console.log("Post updated:", result);
-            setLoading(false);
+      await new Promise((resolve, reject) => {
+        signAndExecute(
+          { transaction: tx },
+          {
+            onSuccess: (result) => {
+              console.log("Post edited:", result);
+              resolve(result);
+            },
+            onError: (err) => {
+              console.error("Error editing post:", err);
+              reject(err);
+            },
           },
-          onError: (error) => {
-            console.error("Transaction failed:", error);
-            setError(error.message);
-            setLoading(false);
-          },
-        },
-      );
+        );
+      });
     } catch (err: any) {
-      setError(err.message || "Failed to update post");
+      setError(err.message || "Failed to edit post");
+    } finally {
       setLoading(false);
     }
   };
 
-  const deletePost = async (suitId: string) => {
+  const deletePost = async (postId: string) => {
     if (!currentAccount) {
       setError("No wallet connected");
       return;
@@ -194,60 +206,26 @@ export function usePost() {
     setError(null);
 
     try {
-      const txb = SuitterTransactions.deletePost(suitId);
+      const tx = SuitterTransactions.deletePost(postId);
 
-      signAndExecute(
-        {
-          transaction: txb,
-        },
-        {
-          onSuccess: (result) => {
-            console.log("Post deleted:", result);
-            setLoading(false);
+      await new Promise((resolve, reject) => {
+        signAndExecute(
+          { transaction: tx },
+          {
+            onSuccess: (result) => {
+              console.log("Post deleted:", result);
+              resolve(result);
+            },
+            onError: (err) => {
+              console.error("Error deleting post:", err);
+              reject(err);
+            },
           },
-          onError: (error) => {
-            console.error("Transaction failed:", error);
-            setError(error.message);
-            setLoading(false);
-          },
-        },
-      );
+        );
+      });
     } catch (err: any) {
       setError(err.message || "Failed to delete post");
-      setLoading(false);
-    }
-  };
-
-  const resharePost = async (originalSuitId: string, comment: string = "") => {
-    if (!currentAccount) {
-      setError("No wallet connected");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const txb = SuitterTransactions.resharePost(originalSuitId, comment);
-
-      signAndExecute(
-        {
-          transaction: txb,
-        },
-        {
-          onSuccess: (result) => {
-            console.log("Post reshared:", result);
-            setLoading(false);
-          },
-          onError: (error) => {
-            console.error("Transaction failed:", error);
-            setError(error.message);
-            setLoading(false);
-          },
-        },
-      );
-    } catch (err: any) {
-      setError(err.message || "Failed to reshare post");
+    } finally {
       setLoading(false);
     }
   };
@@ -275,9 +253,8 @@ export function usePost() {
 
   return {
     createPost,
-    updatePost,
+    editPost,
     deletePost,
-    resharePost,
     getPost,
     getUserPosts,
     loading,
@@ -290,6 +267,10 @@ export function usePost() {
  */
 export function useComment() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+  const currentAccount = useCurrentAccount();
+
   const [error, setError] = useState<string | null>(null);
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const currentAccount = useCurrentAccount();
@@ -327,7 +308,26 @@ export function useComment() {
       });
     } catch (err: any) {
       setError(err.message || "Failed to add comment");
-      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getComments = async (postId: string): Promise<Comment[]> => {
+    try {
+      return await SuitterQueries.getCommentsByPost(postId);
+    } catch (err: any) {
+      console.error("Error fetching comments:", err);
+            },
+            onError: (err) => {
+              console.error("Error adding comment:", err);
+              reject(err);
+            },
+          },
+        );
+      });
+    } catch (err: any) {
+      setError(err.message || "Failed to add comment");
     } finally {
       setLoading(false);
     }
@@ -388,7 +388,6 @@ export function useLike() {
       });
     } catch (err: any) {
       setError(err.message || "Failed to like suit");
-      throw err;
     } finally {
       setLoading(false);
     }
@@ -423,14 +422,13 @@ export function useLike() {
       });
     } catch (err: any) {
       setError(err.message || "Failed to unlike suit");
-      throw err;
     } finally {
       setLoading(false);
     }
   };
 
   const checkLikeStatus = async (
-    suitId: string,
+    postId: string,
   ): Promise<{
     isLiked: boolean;
     likeObjectId?: string;
@@ -439,9 +437,17 @@ export function useLike() {
     if (!currentAccount) return { isLiked: false, totalLikes: 0 };
 
     try {
-      // For now, we'll check the suit object directly
-      // In future, we might query events or use a different approach
-      return { isLiked: false, totalLikes: 0 };
+      const userLikeStatus = await SuitterQueries.hasUserLikedPost(
+        currentAccount.address,
+        postId,
+      );
+      const allLikes = await SuitterQueries.getLikesByPost(postId);
+
+      return {
+        isLiked: userLikeStatus.liked,
+        likeObjectId: userLikeStatus.likeId,
+        totalLikes: allLikes.length,
+      };
     } catch (err: any) {
       console.error("Error checking like status:", err);
       return { isLiked: false, totalLikes: 0 };

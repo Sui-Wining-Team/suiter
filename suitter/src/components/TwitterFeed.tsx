@@ -106,7 +106,6 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
     }
   };
 
-  // Handle adding a comment
   const handleComment = async (
     postId: string,
     content: string,
@@ -234,11 +233,18 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
           const timestamp = suit.timestamp
             ? parseInt(suit.timestamp)
             : Date.now();
-
-          const isOwner = suit.owner === currentAccount?.address;
-          const likeStatus = likeStatuses[postId] || {};
           const timeAgo = getTimeAgo(timestamp);
-          const commentCount = parseInt(suit.comment_count) || 0;
+          const isOwner = suit.owner === currentAccount?.address;
+
+          // Get comment count from suit object
+          const commentCount = suit.comment_count
+            ? parseInt(suit.comment_count)
+            : 0;
+
+          // Get like status from the likeStatuses state
+          const likeStatus = likeStatuses[postId] || {};
+          const likeCount = likeStatus.totalLikes || 0;
+          const isLiked = likeStatus.isLiked || false;
 
           return (
             <TweetCard
@@ -248,8 +254,8 @@ export function TwitterFeed({ onPostClick }: TwitterFeedProps) {
               content={text}
               mediaBlobIds={mediaBlobIds}
               timestamp={timeAgo}
-              likes={likeStatus.totalLikes || 0}
-              isLiked={likeStatus.isLiked || false}
+              likes={likeCount}
+              isLiked={isLiked}
               commentCount={commentCount}
               isOwner={isOwner}
               deleted={false}
