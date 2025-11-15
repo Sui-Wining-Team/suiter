@@ -251,12 +251,13 @@ export class SuitterTransactions {
     const tx = new Transaction();
 
     tx.moveCall({
-      target: `${SUITTER_CONFIG.PACKAGE_ID}::suit_profile::create_user_profile`,
+      target: `${SUITTER_CONFIG.PACKAGE_ID}::sui_profile::create_user_profile`,
       arguments: [
+        tx.object(SUITTER_CONFIG.PROFILE_REGISTRY_ID), // ProfileRegistry
         tx.pure.string(username),
         tx.pure.string(name),
         tx.pure.string(bio),
-        tx.pure.string(avatarBlobId),
+        tx.pure.string(avatarBlobId || ""),
         tx.object(SUITTER_CONFIG.CLOCK_ID), // Clock
       ],
     });

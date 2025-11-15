@@ -100,6 +100,10 @@ export function ProfileEditModal({
   };
 
   const handleSave = async () => {
+    console.log("handleSave called");
+    console.log("Current account:", currentAccount);
+    console.log("Form data:", { username, name, bio, avatarBlobId });
+
     if (!currentAccount) {
       toast.error("Please connect your wallet");
       return;
@@ -122,18 +126,23 @@ export function ProfileEditModal({
       return;
     }
 
-    if (isCreating && !avatarBlobId) {
-      toast.error("Please upload an avatar");
-      return;
-    }
-
+    // Avatar is optional - use empty string if not provided
+    console.log("All validations passed, calling onSave");
+    console.log(
+      "Avatar blob ID:",
+      avatarBlobId || "(empty - will use default)",
+    );
     setSaving(true);
     try {
-      await onSave(username, name, bio, avatarBlobId || "default_avatar");
+      await onSave(username, name, bio, avatarBlobId || "");
+      toast.success("Profile saved successfully!");
       onClose();
     } catch (error) {
       console.error("Failed to save profile:", error);
-      // Error toast is handled by the parent component
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Failed to save profile: ${errorMessage}`);
+      throw error;
     } finally {
       setSaving(false);
     }
@@ -141,25 +150,20 @@ export function ProfileEditModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-black border-gray-800 text-white max-w-2xl">
+      <DialogContent className="bg-black border-gray-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>
-              {isCreating ? "Create Profile" : "Edit Profile"}
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="rounded-full h-8 w-8 p-0"
-              disabled={saving}
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
+          <DialogTitle>
+            {isCreating ? "Create Profile" : "Edit Profile"}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSave();
+          }}
+          className="space-y-6"
+        >
           {/* Avatar Upload */}
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
@@ -257,8 +261,9 @@ export function ProfileEditModal({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 justify-end">
+          <div className="flex gap-3 justify-end pt-4">
             <Button
+              type="button"
               variant="outline"
               onClick={onClose}
               disabled={saving}
@@ -267,8 +272,8 @@ export function ProfileEditModal({
               Cancel
             </Button>
             <Button
-              onClick={handleSave}
-              disabled={saving || uploading}
+              type="submit"
+              disabled={saving || uploading || !username.trim() || !name.trim()}
               className="bg-blue-500 hover:bg-blue-600"
             >
               {saving ? (
@@ -283,7 +288,7 @@ export function ProfileEditModal({
               )}
             </Button>
           </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

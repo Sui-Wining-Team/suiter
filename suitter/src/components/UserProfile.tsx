@@ -90,10 +90,16 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
   }
 
   const displayName =
+    profile?.name ||
     profile?.username ||
     profileAddress?.slice(0, 6) + "..." + profileAddress?.slice(-4) ||
     "Unknown";
-  const bio = profile?.bio_cid || "No bio yet";
+  const username =
+    profile?.username || profileAddress?.slice(0, 8) || "unknown";
+  const bio = profile?.bio || "No bio yet";
+  const avatarUrl = profile?.avatar_blob_id
+    ? `https://aggregator.walrus-testnet.walrus.space/v1/${profile.avatar_blob_id}`
+    : `https://api.dicebear.com/7.x/avataaars/svg?seed=${profileAddress}`;
 
   return (
     <div className="w-full">
@@ -126,12 +132,7 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
         <div className="px-4 pb-4">
           <div className="flex justify-between items-start -mt-16 mb-4">
             <Avatar className="h-32 w-32 border-4 border-black">
-              <AvatarImage
-                src={
-                  profile?.avatar_cid ||
-                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${profileAddress}`
-                }
-              />
+              <AvatarImage src={avatarUrl} />
               <AvatarFallback className="text-4xl">
                 {displayName[0]}
               </AvatarFallback>
@@ -154,7 +155,7 @@ export function UserProfile({ address, onBack }: UserProfileProps) {
 
           <div>
             <h2 className="text-2xl font-bold">{displayName}</h2>
-            <p className="text-gray-500">@{profileAddress?.slice(0, 8)}</p>
+            <p className="text-gray-500">@{username}</p>
           </div>
 
           <p className="mt-3 text-white">{bio}</p>
